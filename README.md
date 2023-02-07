@@ -1,6 +1,6 @@
-# ComputerSystemsPerformance_miniproject1
+# ComputerSystemsPerformance
 
-Repository containing source code, data and results of miniproject 1 for Computer Systems Performance, course at IT Uinversity of Copenhagen.
+Repository containing source code, data and results of miniproject 1 and 2 for Computer Systems Performance, course at IT Uinversity of Copenhagen.
 
 ## Prequisites
 Install packages described in requirements.txt
