@@ -11,13 +11,13 @@ public:
 
     // given an input, output a hash of the output that is 0 >= max_size
     // h(c, m) = ((ac+b) mod p) mod m
-    static int hash(char input, int max_size){
-        int p = INT_MAX-1; // large prime number
-        int a = (p-1) * ((double)rand()) / RAND_MAX;
-        int b = (p-1) * ((double)rand()) / RAND_MAX;
+    static unsigned short hash(unsigned char input, int max_size){
+        unsigned int p = INT_MAX; // large prime number
+        unsigned int a = (p-1) * ((double)rand()) / RAND_MAX;
+        unsigned int b = (p-1) * ((double)rand()) / RAND_MAX;
         int c = (int)input;
 
-        return ((a*c + b) % p) % max_size;
+        return (unsigned short)((a*c + b) % p) % max_size;
     }
 };
 
