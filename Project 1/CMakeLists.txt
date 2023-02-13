@@ -3,4 +3,4 @@ project (threading)
 
 SET (CMAKE_CXX_FLAGS "-std=c++20")
 
-add_executable(main main.cpp)
+add_executable(independent_output independent_output.cpp)
