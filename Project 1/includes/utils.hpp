@@ -1,6 +1,12 @@
 #include<cstdlib>
 #include <chrono>
 
+// ensure only 15-bits
+#define RAND() (rand() & 0x7fff)
+
+// u64 is 8 bytes of size
+typedef unsigned long long u64;
+
 class utils
 {
 private:
@@ -11,13 +17,16 @@ public:
 
     // given an input, output a hash of the output that is 0 >= max_size
     // h(c, m) = ((ac+b) mod p) mod m
-    static int hash(unsigned char input, int max_size){
-        unsigned int p = INT_MAX; // large prime number
-        unsigned int a = (p-1) * ((double)rand()) / RAND_MAX;
-        unsigned int b = (p-1) * ((double)rand()) / RAND_MAX;
-        int c = (int)input;
+    static u64 hash(u64 input, int hash_bits){
+        srand((unsigned int)input);
+        u64 num = (((u64)RAND()<<48) ^ ((u64)RAND()<<35) ^ ((u64)RAND()<<22) ^
+                   ((u64)RAND()<< 9) ^ ((u64)RAND()>> 4));
 
-        return (int)((a*c + b) % p) % max_size;
+        return num % max_partition_hash(hash_bits);
+    }
+
+    static u64 max_partition_hash(int hash_bits){
+        return (0xffffffffffffffff << hash_bits) ^ 0xffffffffffffffff;
     }
 };
 
