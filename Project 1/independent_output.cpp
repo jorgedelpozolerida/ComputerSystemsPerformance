@@ -3,10 +3,13 @@
 #include <string.h>
 #include <thread>
 #include <vector>
+#include <mutex>
 
 const int INPUT_SIZE = 8192;
 const int NUM_THREADS = 1;
 const int HASH_BITS = 8;
+
+std::mutex mtx; 
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
 u64* generate_input()
@@ -31,9 +34,9 @@ void process_partition(u64* data, int start, int end, std::vector<std::vector<st
         std::tuple tuple = std::make_tuple(hash, data[i]);
         std::cout << "(" << hash << ", " << data[i] << ")\n";
         
-        // lock
+        mtx.lock();
         partitions.at(hash).push_back(tuple);
-        // unlock
+        mtx.unlock();
     }
 }
 
