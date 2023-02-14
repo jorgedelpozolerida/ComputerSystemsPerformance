@@ -3,13 +3,10 @@
 #include <string.h>
 #include <thread>
 #include <vector>
-#include <mutex>
 
 const int INPUT_SIZE = 8192;
 const int NUM_THREADS = 1;
 const int HASH_BITS = 8;
-
-std::mutex mtx; 
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
 u64* generate_input()
@@ -34,9 +31,7 @@ void process_partition(u64* data, int start, int end, std::vector<std::vector<st
         std::tuple tuple = std::make_tuple(hash, data[i]);
         std::cout << "(" << hash << ", " << data[i] << ")\n";
         
-        mtx.lock();
         partitions.at(hash).push_back(tuple);
-        mtx.unlock();
     }
 }
 
@@ -45,21 +40,20 @@ int main()
     u64* input = generate_input();
     const int partition_size = INPUT_SIZE / NUM_THREADS;
 
-    // our hash will be at most 18 bits
-    std::vector<std::vector<std::tuple<u64, u64>>> partitions;
     std::vector<std::thread> threads;
-
-    // create "partitions"
-    int max_partition_hash = utils::max_partition_hash(HASH_BITS);
-    for (size_t i = 0; i < max_partition_hash; i++)
-    {
-        std::vector<std::tuple<u64, u64>> partition;
-        partitions.push_back(partition);
-    }
-    
 
     for (int i = 0; i < NUM_THREADS; ++i)
     {
+        std::vector<std::vector<std::tuple<u64, u64>>> output_buffer;
+
+        // create "partitions"
+        int max_partition_hash = utils::max_partition_hash(HASH_BITS);
+        for (size_t i = 0; i < max_partition_hash; i++)
+        {
+            std::vector<std::tuple<u64, u64>> partition_buffer;
+            output_buffer.push_back(partition_buffer);
+        }
+
         // set which thread processes what part of the data
         size_t start = i * partition_size;
         size_t end = (i + 1) * partition_size;
@@ -69,7 +63,7 @@ int main()
         }
 
         // create the thread
-        std::thread thread(process_partition, input, start, end, std::ref(partitions));
+        std::thread thread(process_partition, input, start, end, std::ref(output_buffer));
         threads.push_back(std::move(thread));
     }
 
