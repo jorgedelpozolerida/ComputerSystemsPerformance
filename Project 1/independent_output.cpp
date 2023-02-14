@@ -3,9 +3,10 @@
 #include <string.h>
 #include <thread>
 #include <vector>
+#include <chrono>
 
-const int INPUT_SIZE = 8192;
-const int NUM_THREADS = 1;
+const int INPUT_SIZE = 819200;
+const int NUM_THREADS = 8;
 const int HASH_BITS = 8;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
@@ -23,15 +24,15 @@ u64* generate_input()
     return generated;
 }
 
-void process_partition(u64* data, int start, int end, std::vector<std::vector<std::tuple<u64, u64>>> &partitions)
+void process_partition(u64* data, int start, int end, std::vector<std::vector<std::tuple<u64, u64>>> buffer)
 {
     for(size_t i = start; i < end; i++)
     {
         int hash = utils::hash(data[i], HASH_BITS);
         std::tuple tuple = std::make_tuple(hash, data[i]);
-        std::cout << "(" << hash << ", " << data[i] << ")\n";
+        //std::cout << "(" << hash << ", " << data[i] << ")\n";
         
-        partitions.at(hash).push_back(tuple);
+        buffer.at(hash).push_back(tuple);
     }
 }
 
@@ -41,6 +42,7 @@ int main()
     const int partition_size = INPUT_SIZE / NUM_THREADS;
 
     std::vector<std::thread> threads;
+    std::vector<std::vector<std::vector<std::tuple<u64, u64>>>> thread_buffers;
 
     for (int i = 0; i < NUM_THREADS; ++i)
     {
@@ -48,7 +50,7 @@ int main()
 
         // create "partitions"
         int max_partition_hash = utils::max_partition_hash(HASH_BITS);
-        for (size_t i = 0; i < max_partition_hash; i++)
+        for (size_t i = 0; i <= max_partition_hash; i++)
         {
             std::vector<std::tuple<u64, u64>> partition_buffer;
             output_buffer.push_back(partition_buffer);
@@ -63,15 +65,20 @@ int main()
         }
 
         // create the thread
-        std::thread thread(process_partition, input, start, end, std::ref(output_buffer));
+        std::thread thread(process_partition, input, start, end, output_buffer);
         threads.push_back(std::move(thread));
     }
 
+    // measuring the time
+    auto start = std::chrono::steady_clock::now();
     for (std::thread &thread : threads)
     {
         thread.join();
-        std::cout << "thread done\n";
     }
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+
+    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
     delete input;
 
