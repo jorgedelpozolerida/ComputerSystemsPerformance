@@ -61,7 +61,7 @@ int main()
                 u64* input = generate_input();
                 const int partition_size = INPUT_SIZE / NUM_THREADS;
 
-                std::cout << "Threads: " << NUM_THREADS <<"\n";
+                // std::cout << "Threads: " << NUM_THREADS <<"\n";
 
                 std::vector<std::thread> threads;
                 std::vector<std::vector<std::vector<std::tuple<u64, u64>>>> thread_buffers;
@@ -100,10 +100,10 @@ int main()
                 auto end = std::chrono::steady_clock::now();
                 std::chrono::duration<double> elapsed_seconds = end-start;
 
-                std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
+                // std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
 
                 delete input;
-                fout << elapsed_seconds.count() << "; ";
+                fout << (INPUT_SIZE/elapsed_seconds.count())/1000000 << "; ";
 
                 // std::string s = "";
                 // std::cin >> s;
