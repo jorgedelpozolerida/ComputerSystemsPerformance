@@ -39,7 +39,7 @@ void process_partition(u64* data, int start, int end, std::vector<std::vector<st
 
 int main()
 {   
-    for (int experiment = 1; experiment <= 5; experiment += 1) 
+    for (int experiment = 1; experiment <= 8; experiment += 1) 
     {
         std::fstream fout;
         
@@ -48,13 +48,13 @@ int main()
         std::string filename = "Project 1/experiments/independent_input/experiment_" + std::to_string(experiment) + ".csv";
         fout.open(filename, std::ios::out);
 
-        fout << 1 << ", "<< 2 << ", "<< 4 << ", "<< 8 << ", "<< 16 << ", "<< 32 << "\n";
+        fout << " ; "<< 1 << "; "<< 2 << "; "<< 4 << "; "<< 8 << "; "<< 16 << "; "<< 32 << "\n";
 
         for (int HASH_BITS = 1; HASH_BITS <= 18; HASH_BITS += 1) 
         {
             std::cout << " HASH BITS: " << HASH_BITS <<"\n";
 
-
+            fout << HASH_BITS << "; ";
             for (int NUM_THREADS = 1; NUM_THREADS <= 32; NUM_THREADS *= 2) 
             {
 
@@ -103,7 +103,7 @@ int main()
                 std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
 
                 delete input;
-                fout << elapsed_seconds.count() << ", ";
+                fout << elapsed_seconds.count() << "; ";
 
                 // std::string s = "";
                 // std::cin >> s;
