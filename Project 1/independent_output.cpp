@@ -4,10 +4,11 @@
 #include <thread>
 #include <vector>
 #include <chrono>
+#include <fstream>
 
 const int INPUT_SIZE = 819200;
-const int NUM_THREADS = 8;
-const int HASH_BITS = 8;
+// const int NUM_THREADS = 8;
+const int HASH_BITS = 1;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
 u64* generate_input()
@@ -37,51 +38,82 @@ void process_partition(u64* data, int start, int end, std::vector<std::vector<st
 }
 
 int main()
-{
-    u64* input = generate_input();
-    const int partition_size = INPUT_SIZE / NUM_THREADS;
-
-    std::vector<std::thread> threads;
-    std::vector<std::vector<std::vector<std::tuple<u64, u64>>>> thread_buffers;
-
-    for (int i = 0; i < NUM_THREADS; ++i)
+{   
+    for (int experiment = 1; experiment <= 5; experiment += 1) 
     {
-        std::vector<std::vector<std::tuple<u64, u64>>> output_buffer;
+        std::fstream fout;
+        
+        // Create a new file to store updated data
+        
+        std::string filename = "Project 1/experiments/independent_input/experiment_" + std::to_string(experiment) + ".csv";
+        fout.open(filename, std::ios::out);
 
-        // create "partitions"
-        int max_partition_hash = utils::max_partition_hash(HASH_BITS);
-        for (size_t i = 0; i <= max_partition_hash; i++)
+        fout << 1 << ", "<< 2 << ", "<< 4 << ", "<< 8 << ", "<< 16 << ", "<< 32 << "\n";
+
+        for (int HASH_BITS = 1; HASH_BITS <= 18; HASH_BITS += 1) 
         {
-            std::vector<std::tuple<u64, u64>> partition_buffer;
-            output_buffer.push_back(partition_buffer);
-        }
+            std::cout << " HASH BITS: " << HASH_BITS <<"\n";
 
-        // set which thread processes what part of the data
-        size_t start = i * partition_size;
-        size_t end = (i + 1) * partition_size;
-        if (i == NUM_THREADS - 1)
-        {
-            end = INPUT_SIZE;
-        }
 
-        // create the thread
-        std::thread thread(process_partition, input, start, end, output_buffer);
-        threads.push_back(std::move(thread));
+            for (int NUM_THREADS = 1; NUM_THREADS <= 32; NUM_THREADS *= 2) 
+            {
+
+                u64* input = generate_input();
+                const int partition_size = INPUT_SIZE / NUM_THREADS;
+
+                std::cout << "Threads: " << NUM_THREADS <<"\n";
+
+                std::vector<std::thread> threads;
+                std::vector<std::vector<std::vector<std::tuple<u64, u64>>>> thread_buffers;
+
+                for (int i = 0; i < NUM_THREADS; ++i)
+                {
+                    std::vector<std::vector<std::tuple<u64, u64>>> output_buffer;
+
+                    // create "partitions"
+                    int max_partition_hash = utils::max_partition_hash(HASH_BITS);
+                    for (size_t i = 0; i <= max_partition_hash; i++)
+                    {
+                        std::vector<std::tuple<u64, u64>> partition_buffer;
+                        output_buffer.push_back(partition_buffer);
+                    }
+
+                    // set which thread processes what part of the data
+                    size_t start = i * partition_size;
+                    size_t end = (i + 1) * partition_size;
+                    if (i == NUM_THREADS - 1)
+                    {
+                        end = INPUT_SIZE;
+                    }
+
+                    // create the thread
+                    std::thread thread(process_partition, input, start, end, output_buffer);
+                    threads.push_back(std::move(thread));
+                }
+
+                // measuring the time
+                auto start = std::chrono::steady_clock::now();
+                for (std::thread &thread : threads)
+                {
+                    thread.join();
+                }
+                auto end = std::chrono::steady_clock::now();
+                std::chrono::duration<double> elapsed_seconds = end-start;
+
+                std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
+
+                delete input;
+                fout << elapsed_seconds.count() << ", ";
+
+                // std::string s = "";
+                // std::cin >> s;
+            }
+            fout << "\n";
+
+        }  
+
+        fout.close();
+        // delete fout;
     }
-
-    // measuring the time
-    auto start = std::chrono::steady_clock::now();
-    for (std::thread &thread : threads)
-    {
-        thread.join();
-    }
-    auto end = std::chrono::steady_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end-start;
-
-    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
-
-    delete input;
-
-    std::string s = "";
-    std::cin >> s;
+ 
 }
