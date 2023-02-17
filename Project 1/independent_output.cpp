@@ -31,10 +31,10 @@ void process_partition(u64* data, int start, int end, std::vector<std::vector<st
     for(size_t i = start; i < end; i++)
     {
         int hash = utils::hash(data[i], HASH_BITS);
-        std::tuple tuple = std::make_tuple(hash, data[i]);
+        std::tuple t = std::make_tuple(hash, data[i]);
         //std::cout << "(" << hash << ", " << data[i] << ")\n";
         
-        buffer.at(hash).push_back(tuple);
+        buffer.at(hash).push_back(t);
     }
 }
 
