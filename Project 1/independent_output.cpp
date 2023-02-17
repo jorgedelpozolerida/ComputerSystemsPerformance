@@ -24,6 +24,7 @@ u64* generate_input()
     return generated;
 }
 
+// we might want to pass the buffer by reference
 void process_partition(u64* data, int start, int end, std::vector<std::vector<std::tuple<u64, u64>>> buffer)
 {
     for(size_t i = start; i < end; i++)
