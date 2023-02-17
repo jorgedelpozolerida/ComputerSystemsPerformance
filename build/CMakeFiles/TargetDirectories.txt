@@ -1,0 +1,3 @@
+C:/Users/Claud/Documents/0.3 DK Master/Year 1/2 Quarter/Computer Systems Performance/Project Assignments/ComputerSystemsPerformance/build/CMakeFiles/independent_output.dir
+C:/Users/Claud/Documents/0.3 DK Master/Year 1/2 Quarter/Computer Systems Performance/Project Assignments/ComputerSystemsPerformance/build/CMakeFiles/edit_cache.dir
+C:/Users/Claud/Documents/0.3 DK Master/Year 1/2 Quarter/Computer Systems Performance/Project Assignments/ComputerSystemsPerformance/build/CMakeFiles/rebuild_cache.dir
