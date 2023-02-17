@@ -41,6 +41,8 @@ int main()
 {   
     for (int experiment = 1; experiment <= 8; experiment += 1) 
     {
+
+        std::cout << "EXPERIMENT: " << experiment <<"\n";
         std::fstream fout;
         
         // Create a new file to store updated data
@@ -48,13 +50,13 @@ int main()
         std::string filename = "Project 1/experiments/independent_input/experiment_" + std::to_string(experiment) + ".csv";
         fout.open(filename, std::ios::out);
 
-        fout << " ; "<< 1 << "; "<< 2 << "; "<< 4 << "; "<< 8 << "; "<< 16 << "; "<< 32 << "\n";
+        fout << "bits;"<< 1 << ";"<< 2 << ";"<< 4 << ";"<< 8 << ";"<< 16 << ";"<< 32 << "\n";
 
         for (int HASH_BITS = 1; HASH_BITS <= 18; HASH_BITS += 1) 
         {
-            std::cout << " HASH BITS: " << HASH_BITS <<"\n";
+            // std::cout << " HASH BITS: " << HASH_BITS <<"\n";
 
-            fout << HASH_BITS << "; ";
+            fout << HASH_BITS << ";";
             for (int NUM_THREADS = 1; NUM_THREADS <= 32; NUM_THREADS *= 2) 
             {
 
@@ -66,6 +68,7 @@ int main()
                 std::vector<std::thread> threads;
                 std::vector<std::vector<std::vector<std::tuple<u64, u64>>>> thread_buffers;
 
+                std::vector<std::tuple<u64*,u64, u64,std::vector<std::vector<std::tuple<u64, u64>>>>> thread_info;
                 for (int i = 0; i < NUM_THREADS; ++i)
                 {
                     std::vector<std::vector<std::tuple<u64, u64>>> output_buffer;
@@ -85,14 +88,22 @@ int main()
                     {
                         end = INPUT_SIZE;
                     }
+                    thread_info.push_back(std::tuple<u64*,u64, u64,std::vector<std::vector<std::tuple<u64, u64>>>>(input,start,end,output_buffer));
 
                     // create the thread
-                    std::thread thread(process_partition, input, start, end, output_buffer);
-                    threads.push_back(std::move(thread));
+                    // std::thread thread(process_partition, input, start, end, output_buffer);
+                    // threads.push_back(std::move(thread));
                 }
+
 
                 // measuring the time
                 auto start = std::chrono::steady_clock::now();
+                for (int i = 0; i < NUM_THREADS; ++i)
+                {   
+                    std::tuple<u64*,u64, u64,std::vector<std::vector<std::tuple<u64, u64>>>> tup = thread_info[i];
+                    std::thread thread(process_partition, get<0>(tup), get<1>(tup), get<2>(tup), get<3>(tup));
+                    threads.push_back(std::move(thread));
+                }
                 for (std::thread &thread : threads)
                 {
                     thread.join();
@@ -103,7 +114,7 @@ int main()
                 // std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
 
                 delete input;
-                fout << (INPUT_SIZE/elapsed_seconds.count())/1000000 << "; ";
+                fout << (INPUT_SIZE/elapsed_seconds.count())/1000000 << ";";
 
                 // std::string s = "";
                 // std::cin >> s;
