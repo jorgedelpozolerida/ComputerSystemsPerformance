@@ -6,7 +6,7 @@
 #include <chrono>
 #include <fstream>
 
-const int INPUT_SIZE = 819200;
+const int INPUT_SIZE = 2000000;
 // const int NUM_THREADS = 8;
 const int HASH_BITS = 1;
 
@@ -26,11 +26,11 @@ u64* generate_input()
 }
 
 // we might want to pass the buffer by reference
-void process_partition(u64* data, int start, int end, std::vector<std::vector<std::tuple<u64, u64>>> buffer)
+void process_partition(u64* data, int start, int end, int hash_bits,  std::vector<std::vector<std::tuple<u64, u64>>> buffer)
 {
     for(size_t i = start; i < end; i++)
     {
-        int hash = utils::hash(data[i], HASH_BITS);
+        int hash = utils::hash(data[i], hash_bits);
         std::tuple t = std::make_tuple(hash, data[i]);
         //std::cout << "(" << hash << ", " << data[i] << ")\n";
         
@@ -46,7 +46,7 @@ int main()
         
         // Create a new file to store updated data
         
-        std::string filename = "Project 1/experiments/independent_input/experiment_" + std::to_string(experiment) + ".csv";
+        std::string filename = "Project 1/experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
         fout.open(filename, std::ios::out);
 
         fout << " ; "<< 1 << "; "<< 2 << "; "<< 4 << "; "<< 8 << "; "<< 16 << "; "<< 32 << "\n";
@@ -88,7 +88,7 @@ int main()
                     }
 
                     // create the thread
-                    std::thread thread(process_partition, input, start, end, output_buffer);
+                    std::thread thread(process_partition, input, start, end, HASH_BITS, output_buffer);
                     threads.push_back(std::move(thread));
                 }
 
