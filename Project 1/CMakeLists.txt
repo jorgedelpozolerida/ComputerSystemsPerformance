@@ -4,3 +4,5 @@ project (threading)
 add_compile_options(-pthread)
 
 add_executable(independent_output independent_output.cpp)
+
+add_executable(concurrent_output concurrent_output.cpp)
