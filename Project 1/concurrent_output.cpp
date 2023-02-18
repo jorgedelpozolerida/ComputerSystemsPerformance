@@ -37,7 +37,7 @@ void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<
     for(size_t i = start; i < end; i++)
     {
         int hash = utils::hash(data[i], hash_bits);
-        std::tuple t = std::make_tuple(hash, data[i]);
+        std::tuple<int, u64> t = std::make_tuple(hash, data[i]);
         
         std::unique_lock<std::mutex> lock(mut);  // You can use a lock guard as well, but generally unique locks are more flexible
         buffer[index] = t;
