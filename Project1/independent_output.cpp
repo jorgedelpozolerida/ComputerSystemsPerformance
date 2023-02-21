@@ -46,7 +46,7 @@ int main()
         
         // Create a new file to store updated data
         
-        std::string filename = "Project 1/experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
+        std::string filename = "Project1/experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv"; // Assumed to be executed in /home/group_ivas/ComputerSystemsPerformance
         fout.open(filename, std::ios::out);
 
         fout << "bits;" << 1 << ";" << 2 << ";" << 4 << ";"<< 8 << ";" << 16 << ";" << 32 << "\n";
