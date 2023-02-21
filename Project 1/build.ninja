@@ -61,6 +61,7 @@ build CMakeFiles/independent_output.dir/independent_output.cpp.obj: CXX_COMPILER
 # Link the executable independent_output.exe
 
 build independent_output.exe: CXX_EXECUTABLE_LINKER__independent_output_ CMakeFiles/independent_output.dir/independent_output.cpp.obj
+  FLAGS = -pthread
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\independent_output.dir
   POST_BUILD = cd .
@@ -96,6 +97,7 @@ build CMakeFiles/concurrent_output.dir/concurrent_output.cpp.obj: CXX_COMPILER__
 # Link the executable concurrent_output.exe
 
 build concurrent_output.exe: CXX_EXECUTABLE_LINKER__concurrent_output_ CMakeFiles/concurrent_output.dir/concurrent_output.cpp.obj
+  FLAGS = -pthread
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\concurrent_output.dir
   POST_BUILD = cd .

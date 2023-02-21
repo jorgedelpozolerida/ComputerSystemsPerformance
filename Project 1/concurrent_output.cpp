@@ -13,7 +13,6 @@ const int INPUT_SIZE = 800;
 const int HASH_BITS = 1;
 
 // cocurrency primitives needed - the index does not need to atomic because it's incremented while it's locked
-volatile int index = 0;
 std::mutex mut;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
@@ -32,7 +31,7 @@ u64* generate_input()
 }
 
 // we might want to pass the buffer by reference
-void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<u64, u64>* buffer)
+void process_partition(u64* data, int start, int end, int hash_bits, int &index, std::tuple<u64, u64>* buffer)
 {
     for(size_t i = start; i < end; i++)
     {
@@ -41,7 +40,7 @@ void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<
         
         std::unique_lock<std::mutex> lock(mut);  // You can use a lock guard as well, but generally unique locks are more flexible
         buffer[index] = t;
-        index++;
+        index+=1;
         lock.unlock(); // Release the lock
     }
 }
@@ -50,7 +49,6 @@ double run_experiment(int hash_bits, int num_threads)
 {
     // random data to be partitioned
     u64* input = generate_input();
-    //
     std::tuple<u64, u64>* output_buffer = new std::tuple<u64, u64>[INPUT_SIZE];
     const int partition_size = INPUT_SIZE / num_threads;
 
@@ -69,7 +67,8 @@ double run_experiment(int hash_bits, int num_threads)
         }
 
         // create the thread
-        std::thread thread(process_partition, input, start, end, hash_bits, output_buffer);
+        int index = 0;
+        std::thread thread(process_partition, input, start, end, hash_bits, index, output_buffer);
         threads.push_back(std::move(thread));
     }
 
