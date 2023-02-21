@@ -104,7 +104,7 @@ int main()
                 std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
 
                 delete input;
-                if (NUM_THREADS == 32 - 1)
+                if (NUM_THREADS == 32)
                 {
                     fout << elapsed_seconds.count();
 
