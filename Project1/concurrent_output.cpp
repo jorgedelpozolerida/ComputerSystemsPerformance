@@ -8,9 +8,9 @@
 #include <atomic>
 #include <fstream>
 
-const int INPUT_SIZE = 20000;
-const int MAX_NUM_THREADS = 4;
-const int MAX_HASH_BITS = 18;
+const int INPUT_SIZE = 2000000;
+const int MAX_NUM_THREADS = 32;
+const int MAX_HASH_BITS = 32;
 
 // cocurrency primitives needed - the index does not need to atomic because it's incremented while it's locked
 std::mutex mut;
