@@ -6,9 +6,9 @@
 #include <chrono>
 #include <fstream>
 
-const int INPUT_SIZE = 800;
-const int MAX_NUM_THREADS = 4;
-const int MAX_HASH_BITS = 18;
+const int INPUT_SIZE = 2000000;
+const int MAX_NUM_THREADS = 32;
+const int MAX_HASH_BITS = 32;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
 u64 *generate_input()
