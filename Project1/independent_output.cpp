@@ -46,16 +46,16 @@ int main()
         
         // Create a new file to store updated data
         
-        std::string filename = "Project 1/experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
+        std::string filename = "Project1/experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv"; // Assumed to be executed in /home/group_ivas/ComputerSystemsPerformance
         fout.open(filename, std::ios::out);
 
-        fout << " ; "<< 1 << "; "<< 2 << "; "<< 4 << "; "<< 8 << "; "<< 16 << "; "<< 32 << "\n";
+        fout << "bits;" << 1 << ";" << 2 << ";" << 4 << ";"<< 8 << ";" << 16 << ";" << 32 << "\n";
 
         for (int HASH_BITS = 1; HASH_BITS <= 18; HASH_BITS += 1) 
         {
             std::cout << " HASH BITS: " << HASH_BITS <<"\n";
 
-            fout << HASH_BITS << "; ";
+            fout << HASH_BITS << ";";
             for (int NUM_THREADS = 1; NUM_THREADS <= 32; NUM_THREADS *= 2) 
             {
 
@@ -104,8 +104,13 @@ int main()
                 std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
 
                 delete input;
-                fout << elapsed_seconds.count() << "; ";
+                if (NUM_THREADS == 32)
+                {
+                    fout << elapsed_seconds.count();
 
+                } else {
+                fout << elapsed_seconds.count() << ";";
+                }
                 // std::string s = "";
                 // std::cin >> s;
             }
