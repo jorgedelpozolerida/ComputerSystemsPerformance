@@ -6,8 +6,10 @@
 #include <fstream>
 #include <mutex>
 #include <atomic>
+#include <fstream>
 
-const int INPUT_SIZE = 800;
+const int INPUT_SIZE = 20000;
+const int MAX_NUM_THREADS = 4;
 const int MAX_HASH_BITS = 18;
 
 // cocurrency primitives needed - the index does not need to atomic because it's incremented while it's locked
@@ -66,7 +68,7 @@ double run_experiment(int hash_bits, int num_threads)
 
         // create the thread
         int index = 0;
-        std::thread thread(process_partition, input, start, end, hash_bits, index, output_buffer);
+        std::thread thread(process_partition, input, start, end, hash_bits, std::ref(index), std::ref(output_buffer));
         threads.push_back(std::move(thread));
     }
 
@@ -90,11 +92,8 @@ int main()
 {   
     for (int experiment = 1; experiment <= 8; experiment += 1) 
     {
-        std::fstream fout;
-        
-        // Create a new file to store updated data        
-        std::string filename = "Project1/experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
-        fout.open(filename, std::ios::out);
+        std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
+        std::ofstream fout(filename);
 
         fout << "Threads;Hash_Bits;Running Time\n";
 
@@ -102,13 +101,13 @@ int main()
         {
             std::cout << " HASH BITS: " << hash_bits <<"\n";
 
-            for (int num_threads = 1; num_threads <= 8; num_threads *= 2) 
+            for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
                 double exp = run_experiment(hash_bits, num_threads);
 
                 fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
             }
-        }  
+        }
 
         fout.close();
     }

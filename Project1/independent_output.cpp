@@ -6,8 +6,8 @@
 #include <chrono>
 #include <fstream>
 
-const int INPUT_SIZE = 200000;
-const int MAX_NUM_THREADS = 8;
+const int INPUT_SIZE = 800;
+const int MAX_NUM_THREADS = 4;
 const int MAX_HASH_BITS = 18;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
@@ -42,8 +42,6 @@ double run_experiment(int hash_bits, int num_threads)
 {
     u64 *input = generate_input();
     const int partition_size = INPUT_SIZE / num_threads;
-
-    std::cout << "Threads: " << num_threads << "\n";
 
     std::vector<std::thread> threads;
     std::vector<std::vector<std::vector<std::tuple<u64, u64>>>> thread_buffers;
@@ -90,19 +88,13 @@ int main()
 {
     for (int experiment = 1; experiment <= 8; experiment += 1)
     {
-        std::fstream fout;
-
-        // Create a new file to store updated data
-
-        std::string filename = "Project1/experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv"; // Assumed to be executed in /home/group_ivas/ComputerSystemsPerformance
-        fout.open(filename, std::ios::out);
+        std::string filename = "./experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
+        std::ofstream fout(filename);
 
         fout << "Threads;Hash_Bits;Running Time\n";
 
         for (int hash_bits = 1; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
         {
-            std::cout << " HASH BITS: " << hash_bits <<"\n";
-
             for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
                 double exp = run_experiment(hash_bits, num_threads);
