@@ -67,7 +67,7 @@ double run_experiment(int hash_bits, int num_threads)
         }
 
         // create the thread
-        int index = 0;
+        volatile int index = 0;
         std::thread thread(process_partition, input, start, end, hash_bits, std::ref(index), std::ref(output_buffer));
         threads.push_back(std::move(thread));
     }
