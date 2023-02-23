@@ -36,7 +36,7 @@
 *.app
 
 # results
-*.csv
+# *.csv
 
 ### CMake ###
 CMakeLists.txt.user
