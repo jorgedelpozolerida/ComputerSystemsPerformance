@@ -94,6 +94,7 @@ int main()
 {   
     for (int experiment = 1; experiment <= 8; experiment += 1) 
     {
+        sharedIndex = 0;
         std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
 
