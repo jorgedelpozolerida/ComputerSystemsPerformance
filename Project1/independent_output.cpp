@@ -32,7 +32,6 @@ void process_partition(u64 *data, int start, int end, int hash_bits, std::vector
     {
         int hash = utils::hash(data[i], hash_bits);
         std::tuple<int, u64> t = std::make_tuple(hash, data[i]);
-        // std::cout << "(" << hash << ", " << data[i] << ")\n";
 
         buffer.at(hash).push_back(t);
     }
@@ -40,6 +39,8 @@ void process_partition(u64 *data, int start, int end, int hash_bits, std::vector
 
 int64_t run_experiment(int hash_bits, int num_threads)
 {
+    std::cout << "Threads: " << num_threads <<"\n";
+
     u64 *input = generate_input();
     const int partition_size = INPUT_SIZE / num_threads;
 
@@ -81,6 +82,8 @@ int64_t run_experiment(int hash_bits, int num_threads)
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds);
 
+    std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n\n";
+
     delete input;
     return elapsed_ms.count();
 }
@@ -92,15 +95,17 @@ int main()
         std::string filename = "./experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
 
-        fout << "Threads;Hash_Bits;Running Time (ms)\n";
+        //fout << "Threads;Hash_Bits;Running Time (ms)\n";
 
         for (int hash_bits = 1; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
         {
+            std::cout << " HASH BITS: " << hash_bits <<"\n";
+
             for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
                 int64_t exp = run_experiment(hash_bits, num_threads);
 
-                fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
+                //fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
             }
         }  
 
