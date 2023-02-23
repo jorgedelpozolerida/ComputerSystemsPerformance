@@ -8,7 +8,7 @@
 
 const int INPUT_SIZE = 2000000;
 const int MAX_NUM_THREADS = 32;
-const int MAX_HASH_BITS = 32;
+const int MAX_HASH_BITS = 24;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
 u64 *generate_input()
@@ -90,7 +90,7 @@ int64_t run_experiment(int hash_bits, int num_threads)
 
 int main()
 {
-    for (int experiment = 1; experiment <= 8; experiment += 1)
+    for (int experiment = 1; experiment <= 1; experiment += 1)
     {
         std::string filename = "./experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
