@@ -51,6 +51,7 @@ double run_experiment(int hash_bits, int num_threads)
     u64* input = generate_input();
     std::tuple<u64, u64>* output_buffer = new std::tuple<u64, u64>[INPUT_SIZE];
     const int partition_size = INPUT_SIZE / num_threads;
+    volatile int index = 0;
 
     std::cout << "Threads: " << num_threads <<"\n";
 
@@ -67,7 +68,6 @@ double run_experiment(int hash_bits, int num_threads)
         }
 
         // create the thread
-        volatile int index = 0;
         std::thread thread(process_partition, input, start, end, hash_bits, std::ref(index), std::ref(output_buffer));
         threads.push_back(std::move(thread));
     }
