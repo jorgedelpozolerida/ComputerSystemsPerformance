@@ -53,6 +53,7 @@ double run_experiment(int hash_bits, int num_threads)
     u64* input = generate_input();
     std::tuple<u64, u64>* output_buffer = new std::tuple<u64, u64>[INPUT_SIZE];
     const int partition_size = INPUT_SIZE / num_threads;
+    sharedIndex = 0;
 
     std::cout << "Threads: " << num_threads <<"\n";
 
@@ -94,7 +95,6 @@ int main()
 {   
     for (int experiment = 1; experiment <= 8; experiment += 1) 
     {
-        sharedIndex = 0;
         std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
 
