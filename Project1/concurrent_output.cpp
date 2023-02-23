@@ -47,7 +47,7 @@ void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<
     }
 }
 
-double run_experiment(int hash_bits, int num_threads)
+int64_t run_experiment(int hash_bits, int num_threads)
 {
     // random data to be partitioned
     u64* input = generate_input();
@@ -82,13 +82,14 @@ double run_experiment(int hash_bits, int num_threads)
     }
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
+    std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds);
 
     std::cout << "Index: " << sharedIndex << "\n";
-    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
+    std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n\n";
 
     delete output_buffer;
     delete input;
-    return elapsed_seconds.count();
+    return elapsed_ms.count();
 }
 
 int main()
@@ -98,7 +99,7 @@ int main()
         std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
 
-        fout << "Threads;Hash_Bits;Running Time\n";
+        fout << "Threads;Hash_Bits;Running Time (ms)\n";
 
         for (int hash_bits = 1; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
         {
@@ -106,7 +107,7 @@ int main()
 
             for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
-                double exp = run_experiment(hash_bits, num_threads);
+                int64_t exp = run_experiment(hash_bits, num_threads);
 
                 fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
             }
