@@ -82,6 +82,7 @@ double run_experiment(int hash_bits, int num_threads)
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
 
+    std::cout << "Index: " << sharedIndex << "\n";
     std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n\n";
 
     delete output_buffer;
