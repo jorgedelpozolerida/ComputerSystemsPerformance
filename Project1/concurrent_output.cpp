@@ -31,7 +31,7 @@ u64* generate_input()
 }
 
 // we might want to pass the buffer by reference
-void process_partition(u64* data, int start, int end, int hash_bits, int &index, std::tuple<u64, u64>* buffer)
+void process_partition(u64* data, int start, int end, int hash_bits, int &index)
 {
     for(size_t i = start; i < end; i++)
     {
@@ -39,7 +39,7 @@ void process_partition(u64* data, int start, int end, int hash_bits, int &index,
         std::tuple<int, u64> t = std::make_tuple(hash, data[i]);
         
         std::unique_lock<std::mutex> lock(mut);  // You can use a lock guard as well, but generally unique locks are more flexible
-        buffer[index] = t;
+        //buffer[index] = t;
         index+=1;
         lock.unlock(); // Release the lock
     }
@@ -51,7 +51,7 @@ double run_experiment(int hash_bits, int num_threads)
     u64* input = generate_input();
     std::tuple<u64, u64>* output_buffer = new std::tuple<u64, u64>[INPUT_SIZE];
     const int partition_size = INPUT_SIZE / num_threads;
-    volatile int index = 0;
+    volatile int input_index = 0;
 
     std::cout << "Threads: " << num_threads <<"\n";
 
@@ -68,7 +68,7 @@ double run_experiment(int hash_bits, int num_threads)
         }
 
         // create the thread
-        std::thread thread(process_partition, input, start, end, hash_bits, std::ref(index), std::ref(output_buffer));
+        std::thread thread(process_partition, input, start, end, hash_bits, std::ref(input_index));
         threads.push_back(std::move(thread));
     }
 
