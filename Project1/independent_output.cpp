@@ -95,7 +95,7 @@ int main()
         std::string filename = "./experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
 
-        //fout << "Threads;Hash_Bits;Running Time (ms)\n";
+        fout << "Threads;Hash_Bits;Running Time (ms)\n";
 
         for (int hash_bits = 1; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
         {
@@ -105,7 +105,7 @@ int main()
             {
                 int64_t exp = run_experiment(hash_bits, num_threads);
 
-                //fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
+                fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
             }
         }  
 
