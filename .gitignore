@@ -35,6 +35,9 @@
 *.out
 *.app
 
+# VS Code
+.vscode
+
 # results
 # *.csv
 
