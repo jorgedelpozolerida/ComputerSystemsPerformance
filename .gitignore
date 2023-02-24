@@ -35,8 +35,11 @@
 *.out
 *.app
 
+# VS Code
+.vscode
+
 # results
-*.csv
+# *.csv
 
 ### CMake ###
 CMakeLists.txt.user
