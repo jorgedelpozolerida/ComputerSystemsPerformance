@@ -52,6 +52,7 @@ _deps
 Project1/CMakeFiles/
 
 *.ninja
+.ninja*
 
 ### CMake Patch ###
 # External projects
