@@ -78,6 +78,7 @@ def plot_experiment(ax, data_technique, title):
     ax.set_ylabel("Millions of Tuples per Second")
     ax.set_xlabel("Hash Bits")
     ax.set_xticks(ticks=ticks, labels=ticks)
+
     # Plot
     for j, th in enumerate(thread_values):
         thread_data = data_technique.query("threads == @th")
@@ -98,14 +99,18 @@ def main(args):
     experiment_dirs = os.listdir(input_dir)
     experiment_dirs.sort(reverse=True)
     
+    # Get all data
+    data_techniques = [combine_experiment_trials(os.path.join(input_dir, subdir), args) for subdir in experiment_dirs ]
+    
     # Big plot config
     fig_all, axs_all = plt.subplots(1, len(experiment_dirs), figsize=(15,5), sharex=True)
     fig_all.subplots_adjust(hspace=0)
+    y_lims = [0, np.ceil(max(  [ d['throughput'].max() for d in data_techniques] ))]
 
     # Plot
     for i, technique_dir  in enumerate(experiment_dirs):
 
-        data_technique = combine_experiment_trials(os.path.join(input_dir, technique_dir), args)
+        data_technique = data_techniques[i]
 
         # Single plot creation and saving
         fig, ax = plt.subplots(figsize=(8,5))
@@ -115,6 +120,7 @@ def main(args):
 
         # Subplot
         axs_all[i] = plot_experiment(axs_all[i], data_technique, title=technique_dir)
+        axs_all[i].set_ylim(y_lims)
         
         _logger.info( f"Generated plots for: {technique_dir }")
     
