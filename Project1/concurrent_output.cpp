@@ -10,7 +10,7 @@
 
 const int INPUT_SIZE = 2000000;
 const int MAX_NUM_THREADS = 8;
-const int MAX_HASH_BITS = 5;
+const int MAX_HASH_BITS = 20;
 
 std::atomic<int> *sharedIndices;
 
@@ -32,7 +32,7 @@ u64* generate_input()
 }
 
 // we might want to pass the buffer by reference
-void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<u64, u64>** buffer)
+void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<u64, u64>** buffer, int max_part_s)
 {
     utils util_obj; 
 
@@ -42,7 +42,6 @@ void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<
         std::tuple<int, u64> t = std::make_tuple(hash, data[i]);
 
         std::unique_lock<std::mutex> lock(mut[hash]);
-        
         buffer[hash][sharedIndices[hash]] = t;
         sharedIndices[hash] += 1;
 
@@ -56,11 +55,13 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     int max_partition_hash = utils::max_partition_hash_static(hash_bits);
 
     // random data to be partitioned
-    const int partition_size = INPUT_SIZE / num_threads;
+    const int thread_divide_size = INPUT_SIZE / num_threads;
+    int partition_buffer_size = (INPUT_SIZE/(max_partition_hash+1))*hash_bits*num_threads;
     std::vector<std::thread> threads;
 
     std::cout << "Threads: " << num_threads <<"\n";
-    std::cout << "Maximum partition size: " << max_partition_hash <<"\n";
+    std::cout << "Maximum output size: " << max_partition_hash <<"\n";
+    std::cout << "Maximum partition buffer size: " << partition_buffer_size <<"\n";
 
     // reset the shared index and create the buffer
     sharedIndices = new std::atomic<int>[max_partition_hash+1];
@@ -68,8 +69,7 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
 
     std::tuple<u64, u64>** output_buffer = new std::tuple<u64, u64>*[max_partition_hash+1]; // max hash includes 0, so we do +1
     for(int i = 0; i <= max_partition_hash; i++){
-        int partition_size = INPUT_SIZE/max_partition_hash;
-        output_buffer[i] = new std::tuple<u64, u64>[INPUT_SIZE];
+        output_buffer[i] = new std::tuple<u64, u64>[partition_buffer_size];
         sharedIndices[i] = 0;
     }
 
@@ -77,19 +77,19 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     for (int i = 0; i < num_threads; ++i)
     {
         // set which thread processes what part of the data
-        size_t start = i * partition_size;
-        size_t end = (i + 1) * partition_size;
+        size_t start = i * thread_divide_size;
+        size_t end = (i + 1) * thread_divide_size;
         if (i == num_threads - 1)
         {
             end = INPUT_SIZE;
         }
 
         // create the thread
-        std::thread thread(process_partition, input, start, end, hash_bits, std::ref(output_buffer));
+        std::thread thread(process_partition, input, start, end, hash_bits, std::ref(output_buffer), partition_buffer_size);
         threads.push_back(std::move(thread));
     }
 
-    // measuring the time
+    // // measuring the time
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < num_threads; ++i)
     {
@@ -101,15 +101,20 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds);
     
-    std::cout << "\nelapsed time: " << elapsed_ms.count() << "ms\n\n";
+    std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n";
 
+    int sum = 0;
     for(int i = 0; i <= max_partition_hash; i++){
         delete[] output_buffer[i];
+        sum += sharedIndices[i];
     }
+
+    std::cout << "Processed: " << sum << " tuples\n\n";
+
     delete[] output_buffer;
     delete[] sharedIndices;
     delete[] mut;
-
+    
     return elapsed_ms.count();
 }
 
