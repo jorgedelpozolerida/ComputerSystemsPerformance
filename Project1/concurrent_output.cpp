@@ -9,10 +9,10 @@
 #include <fstream>
 
 const int INPUT_SIZE = 2000000;
-const int MAX_NUM_THREADS = 32;
-const int MAX_HASH_BITS = 32;
+const int MAX_NUM_THREADS = 8;
+const int MAX_HASH_BITS = 20;
 
-std::atomic<int> sharedIndex(0);
+std::atomic<int> *sharedIndices;
 
 // cocurrency primitives needed - the index does not need to atomic because it's incremented while it's locked
 std::mutex mut;
@@ -33,32 +33,48 @@ u64* generate_input()
 }
 
 // we might want to pass the buffer by reference
-void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<u64, u64>* buffer)
+void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<u64, u64>** buffer)
 {
+    utils util_obj; 
+
     for(size_t i = start; i < end; i++)
     {
-        int hash = utils::hash(data[i], hash_bits);
+        int hash = util_obj.hash(data[i], hash_bits);
         std::tuple<int, u64> t = std::make_tuple(hash, data[i]);
+
+        std::unique_lock<std::mutex> lock(mut);
         
-        std::unique_lock<std::mutex> lock(mut);  // You can use a lock guard as well, but generally unique locks are more flexible
-        buffer[sharedIndex] = t;
-        sharedIndex+=1;
-        lock.unlock(); // Release the lock
+        //std::cout << "(" << hash << ", " << sharedIndices[hash] << ")\n";
+        
+        buffer[hash][sharedIndices[hash]] = t;
+        sharedIndices[hash] += 1;
+        lock.unlock();
     }
 }
 
 int64_t run_experiment(int hash_bits, int num_threads)
 {
+    // maximum hash value
+    int max_partition_hash = utils::max_partition_hash_static(hash_bits);
+
     // random data to be partitioned
     u64* input = generate_input();
-    std::tuple<u64, u64>* output_buffer = new std::tuple<u64, u64>[INPUT_SIZE];
     const int partition_size = INPUT_SIZE / num_threads;
-    sharedIndex = 0;
-
-    std::cout << "Threads: " << num_threads <<"\n";
-
     std::vector<std::thread> threads;
 
+    std::cout << "Threads: " << num_threads <<"\n";
+    std::cout << "Maximum partition size: " << max_partition_hash <<"\n";
+
+    // reset the shared index and create the buffer
+    sharedIndices = new std::atomic<int>[max_partition_hash];
+    std::tuple<u64, u64>** output_buffer = new std::tuple<u64, u64>*[max_partition_hash+1]; // max hash includes 0, so we do +1
+    for(int i = 0; i <= max_partition_hash; i++){
+        int partition_size = INPUT_SIZE/max_partition_hash;
+        output_buffer[i] = new std::tuple<u64, u64>[INPUT_SIZE];
+        sharedIndices[i] = 0;
+    }
+
+    // create threads
     for (int i = 0; i < num_threads; ++i)
     {
         // set which thread processes what part of the data
@@ -76,24 +92,31 @@ int64_t run_experiment(int hash_bits, int num_threads)
 
     // measuring the time
     auto start = std::chrono::steady_clock::now();
-    for (std::thread &thread : threads)
+    for (int i = 0; i < num_threads; ++i)
     {
-        thread.join();
+        threads[i].join();
     }
     auto end = std::chrono::steady_clock::now();
+    
+    // calculate the elapsed time
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds);
+    
+    std::cout << "\nelapsed time: " << elapsed_ms.count() << "ms\n\n";
 
-    std::cout << "Index: " << sharedIndex << "\n";
-    std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n\n";
+    for(int i = 0; i <= max_partition_hash; i++){
+        delete[] output_buffer[i];
+    }
+    delete[] output_buffer;
+    delete[] sharedIndices;
+    delete[] input;
 
-    delete output_buffer;
-    delete input;
     return elapsed_ms.count();
 }
 
 int main()
 {   
+    srand(time(NULL));
     for (int experiment = 1; experiment <= 8; experiment += 1) 
     {
         std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
@@ -108,12 +131,10 @@ int main()
             for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
                 int64_t exp = run_experiment(hash_bits, num_threads);
-
                 fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
             }
         }
 
         fout.close();
     }
- 
 }
