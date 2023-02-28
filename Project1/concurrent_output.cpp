@@ -10,18 +10,17 @@
 
 const int INPUT_SIZE = 2000000;
 const int MAX_NUM_THREADS = 8;
-const int MAX_HASH_BITS = 20;
+const int MAX_HASH_BITS = 5;
 
 std::atomic<int> *sharedIndices;
 
 // cocurrency primitives needed - the index does not need to atomic because it's incremented while it's locked
-std::mutex mut;
+std::mutex *mut;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
 u64* generate_input()
 {
     u64* generated = new u64[INPUT_SIZE];
-    srand(INPUT_SIZE); // set a seed
 
     for (int i = 0; i < INPUT_SIZE; i++)
     {
@@ -42,23 +41,21 @@ void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<
         int hash = util_obj.hash(data[i], hash_bits);
         std::tuple<int, u64> t = std::make_tuple(hash, data[i]);
 
-        std::unique_lock<std::mutex> lock(mut);
-        
-        //std::cout << "(" << hash << ", " << sharedIndices[hash] << ")\n";
+        std::unique_lock<std::mutex> lock(mut[hash]);
         
         buffer[hash][sharedIndices[hash]] = t;
         sharedIndices[hash] += 1;
+
         lock.unlock();
     }
 }
 
-int64_t run_experiment(int hash_bits, int num_threads)
+int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
 {
     // maximum hash value
     int max_partition_hash = utils::max_partition_hash_static(hash_bits);
 
     // random data to be partitioned
-    u64* input = generate_input();
     const int partition_size = INPUT_SIZE / num_threads;
     std::vector<std::thread> threads;
 
@@ -66,7 +63,9 @@ int64_t run_experiment(int hash_bits, int num_threads)
     std::cout << "Maximum partition size: " << max_partition_hash <<"\n";
 
     // reset the shared index and create the buffer
-    sharedIndices = new std::atomic<int>[max_partition_hash];
+    sharedIndices = new std::atomic<int>[max_partition_hash+1];
+    mut = new std::mutex[max_partition_hash+1];
+
     std::tuple<u64, u64>** output_buffer = new std::tuple<u64, u64>*[max_partition_hash+1]; // max hash includes 0, so we do +1
     for(int i = 0; i <= max_partition_hash; i++){
         int partition_size = INPUT_SIZE/max_partition_hash;
@@ -105,18 +104,22 @@ int64_t run_experiment(int hash_bits, int num_threads)
     std::cout << "\nelapsed time: " << elapsed_ms.count() << "ms\n\n";
 
     for(int i = 0; i <= max_partition_hash; i++){
+        std::cout << sharedIndices[i] << " ";
         delete[] output_buffer[i];
     }
+    std::cout << "\n";
     delete[] output_buffer;
     delete[] sharedIndices;
-    delete[] input;
+    delete[] mut;
 
     return elapsed_ms.count();
 }
 
 int main()
-{   
+{
     srand(time(NULL));
+    u64* input = generate_input();
+
     for (int experiment = 1; experiment <= 8; experiment += 1) 
     {
         std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
@@ -130,11 +133,13 @@ int main()
 
             for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
-                int64_t exp = run_experiment(hash_bits, num_threads);
+                int64_t exp = run_experiment(hash_bits, num_threads, input);
                 fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
             }
         }
 
         fout.close();
     }
+
+    delete[] input;
 }
