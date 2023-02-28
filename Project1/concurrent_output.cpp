@@ -104,10 +104,8 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     std::cout << "\nelapsed time: " << elapsed_ms.count() << "ms\n\n";
 
     for(int i = 0; i <= max_partition_hash; i++){
-        std::cout << sharedIndices[i] << " ";
         delete[] output_buffer[i];
     }
-    std::cout << "\n";
     delete[] output_buffer;
     delete[] sharedIndices;
     delete[] mut;
