@@ -7,8 +7,8 @@
 #include <fstream>
 
 const int INPUT_SIZE = 2000000;
-const int MAX_NUM_THREADS = 32;
-const int MAX_HASH_BITS = 24;
+const int MAX_NUM_THREADS = 8;
+const int MAX_HASH_BITS = 20;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
 u64 *generate_input()
@@ -28,9 +28,11 @@ u64 *generate_input()
 // we might want to pass the buffer by reference
 void process_partition(u64 *data, int start, int end, int hash_bits, std::vector<std::vector<std::tuple<u64, u64>>> buffer)
 {
+    utils util_obj; 
+
     for (size_t i = start; i < end; i++)
     {
-        int hash = utils::hash(data[i], hash_bits);
+        int hash = util_obj.hash(data[i], hash_bits);
         std::tuple<int, u64> t = std::make_tuple(hash, data[i]);
 
         buffer.at(hash).push_back(t);
@@ -52,7 +54,7 @@ int64_t run_experiment(int hash_bits, int num_threads)
         std::vector<std::vector<std::tuple<u64, u64>>> output_buffer;
 
         // create "partitions"
-        int max_partition_hash = utils::max_partition_hash(hash_bits);
+        int max_partition_hash = utils::max_partition_hash_static(hash_bits);
         for (size_t i = 0; i <= max_partition_hash; i++)
         {
             std::vector<std::tuple<u64, u64>> partition_buffer;
@@ -84,13 +86,13 @@ int64_t run_experiment(int hash_bits, int num_threads)
 
     std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n\n";
 
-    delete input;
+    delete[] input;
     return elapsed_ms.count();
 }
 
 int main()
 {
-    for (int experiment = 1; experiment <= 1; experiment += 1)
+    for (int experiment = 1; experiment <= 8; experiment += 1)
     {
         std::string filename = "./experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
