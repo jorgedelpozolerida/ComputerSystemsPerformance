@@ -14,7 +14,6 @@ const int MAX_HASH_BITS = 20;
 u64 *generate_input()
 {
     u64 *generated = new u64[INPUT_SIZE];
-    srand(INPUT_SIZE); // set a seed
 
     for (int i = 0; i < INPUT_SIZE; i++)
     {
@@ -39,11 +38,10 @@ void process_partition(u64 *data, int start, int end, int hash_bits, std::vector
     }
 }
 
-int64_t run_experiment(int hash_bits, int num_threads)
+int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
 {
     std::cout << "Threads: " << num_threads <<"\n";
 
-    u64 *input = generate_input();
     const int partition_size = INPUT_SIZE / num_threads;
 
     std::vector<std::thread> threads;
@@ -86,12 +84,14 @@ int64_t run_experiment(int hash_bits, int num_threads)
 
     std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n\n";
 
-    delete[] input;
     return elapsed_ms.count();
 }
 
 int main()
 {
+    srand(time(NULL));
+    u64 *input = generate_input();
+
     for (int experiment = 1; experiment <= 8; experiment += 1)
     {
         std::string filename = "./experiments/independent_output/experiment_" + std::to_string(experiment) + ".csv";
@@ -105,7 +105,7 @@ int main()
 
             for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
-                int64_t exp = run_experiment(hash_bits, num_threads);
+                int64_t exp = run_experiment(hash_bits, num_threads, input);
 
                 fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
             }
@@ -113,4 +113,6 @@ int main()
 
         fout.close();
     }
+
+    delete[] input;
 }
