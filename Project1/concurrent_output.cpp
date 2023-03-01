@@ -138,7 +138,7 @@ int main()
 
         fout << "Threads;Hash_Bits;Running Time (ms)\n";
 
-        for (int hash_bits = 21; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
+        for (int hash_bits = 1; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
         {
             std::cout << " HASH BITS: " << hash_bits <<"\n";
 
