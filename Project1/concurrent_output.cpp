@@ -138,7 +138,7 @@ int main()
         {
             std::cout << " HASH BITS: " << hash_bits <<"\n";
 
-            for (int num_threads = 8; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
+            for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
                 int64_t exp = run_experiment(hash_bits, num_threads, input);
                 fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
