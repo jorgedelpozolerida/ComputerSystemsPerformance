@@ -63,7 +63,7 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     std::cout << "Maximum output size: " << max_partition_hash <<"\n";
 
     if(partition_buffer_size < max_partition_hash){
-        partition_buffer_size = max_partition_hash;
+        partition_buffer_size = 5;
     }
 
     std::cout << "Maximum partition buffer size: " << partition_buffer_size <<"\n";

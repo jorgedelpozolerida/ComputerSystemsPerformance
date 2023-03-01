@@ -22,7 +22,7 @@ public:
         u64 num = (((u64)RAND()<<48) ^ ((u64)RAND()<<35) ^ ((u64)RAND()<<22) ^
                    ((u64)RAND()<< 9) ^ ((u64)RAND()>> 4));
 
-        return num & max_partition_hash(hash_bits);
+        return num % max_partition_hash(hash_bits);
     }
 
     u64 max_partition_hash(int hash_bits){
