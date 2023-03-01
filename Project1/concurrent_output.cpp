@@ -109,6 +109,8 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     }
     auto end = std::chrono::steady_clock::now();
     
+    std::cout << "4\n";
+
     // calculate the elapsed time
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds);
