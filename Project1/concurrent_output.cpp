@@ -111,13 +111,13 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
 
     int highest = 0;
     for(int i = 0; i <= max_partition_hash; i++){
-        delete[] output_buffer[i];
-
         std::cout << &output_buffer[i] << "\n";
 
-        // if(sharedIndices[i] > highest){
-        //     highest = sharedIndices[i];
-        // }
+        delete[] output_buffer[i];
+
+        if(sharedIndices[i] > highest){
+            highest = sharedIndices[i];
+        }
     }
 
     std::cout << "Highest index: " << highest << "\n\n";
