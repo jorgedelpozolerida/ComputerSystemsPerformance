@@ -9,8 +9,8 @@
 #include <fstream>
 
 const int INPUT_SIZE = 2000000;
-const int MAX_NUM_THREADS = 8;
-const int MAX_HASH_BITS = 20;
+const int MAX_NUM_THREADS = 32;
+const int MAX_HASH_BITS = 32;
 
 std::atomic<int> *sharedIndices;
 
@@ -56,12 +56,13 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
 
     // random data to be partitioned
     const int thread_divide_size = INPUT_SIZE / num_threads;
-    int partition_buffer_size = (INPUT_SIZE/(max_partition_hash+1))*hash_bits*num_threads;
+    int partition_buffer_size = (INPUT_SIZE/(max_partition_hash))*hash_bits;
     std::vector<std::thread> threads;
 
     std::cout << "Threads: " << num_threads <<"\n";
     std::cout << "Maximum output size: " << max_partition_hash <<"\n";
     std::cout << "Maximum partition buffer size: " << partition_buffer_size <<"\n";
+    std::cout << "Maximum: " << INPUT_SIZE/(max_partition_hash) <<"\n";
 
     // reset the shared index and create the buffer
     sharedIndices = new std::atomic<int>[max_partition_hash+1];
@@ -103,13 +104,16 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     
     std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n";
 
-    int sum = 0;
+    int highest = 0;
     for(int i = 0; i <= max_partition_hash; i++){
         delete[] output_buffer[i];
-        sum += sharedIndices[i];
+
+        if(sharedIndices[i] > highest){
+            highest = sharedIndices[i];
+        }
     }
 
-    std::cout << "Processed: " << sum << " tuples\n\n";
+    std::cout << "Highest index: " << highest << "\n\n";
 
     delete[] output_buffer;
     delete[] sharedIndices;
@@ -123,18 +127,18 @@ int main()
     srand(time(NULL));
     u64* input = generate_input();
 
-    for (int experiment = 1; experiment <= 8; experiment += 1) 
+    for (int experiment = 1; experiment <= 1; experiment += 1) 
     {
         std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
 
         fout << "Threads;Hash_Bits;Running Time (ms)\n";
 
-        for (int hash_bits = 1; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
+        for (int hash_bits = 15; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
         {
             std::cout << " HASH BITS: " << hash_bits <<"\n";
 
-            for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
+            for (int num_threads = 8; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
             {
                 int64_t exp = run_experiment(hash_bits, num_threads, input);
                 fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
