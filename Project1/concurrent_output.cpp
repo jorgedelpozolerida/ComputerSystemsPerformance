@@ -62,8 +62,8 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     std::cout << "Threads: " << num_threads <<"\n";
     std::cout << "Maximum output size: " << max_partition_hash <<"\n";
 
-    if(partition_buffer_size < max_partition_hash){
-        partition_buffer_size = 5;
+    if(partition_buffer_size < 5){
+        partition_buffer_size = 5; //partition_buffer_size is 0 so I set it arb to 0
     }
 
     std::cout << "Maximum partition buffer size: " << partition_buffer_size <<"\n";
