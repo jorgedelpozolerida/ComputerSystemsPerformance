@@ -73,11 +73,15 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     sharedIndices = new std::atomic<int>[max_partition_hash+1];
     mut = new std::mutex[max_partition_hash+1];
 
+    std::cout << "1\n";
+
     std::tuple<u64, u64>** output_buffer = new std::tuple<u64, u64>*[max_partition_hash+1]; // max hash includes 0, so we do +1
     for(int i = 0; i <= max_partition_hash; i++){
         output_buffer[i] = new std::tuple<u64, u64>[partition_buffer_size];
         sharedIndices[i] = 0;
     }
+
+    std::cout << "2\n";
 
     // create threads
     for (int i = 0; i < num_threads; ++i)
@@ -94,6 +98,8 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
         std::thread thread(process_partition, input, start, end, hash_bits, std::ref(output_buffer), partition_buffer_size);
         threads.push_back(std::move(thread));
     }
+
+    std::cout << "3\n";
 
     // // measuring the time
     auto start = std::chrono::steady_clock::now();
