@@ -67,7 +67,6 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     }
 
     std::cout << "Maximum partition buffer size: " << partition_buffer_size <<"\n";
-    std::cout << "Maximum: " << INPUT_SIZE/(max_partition_hash) <<"\n";
 
     // reset the shared index and create the buffer
     sharedIndices = new std::atomic<int>[max_partition_hash+1];
@@ -111,7 +110,7 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
 
     int highest = 0;
     for(int i = 0; i <= max_partition_hash; i++){
-        std::cout << i << "\n";
+        std::cout << i << " " << max_partition_hash << "\n";
 
         delete[] output_buffer[i];
 
