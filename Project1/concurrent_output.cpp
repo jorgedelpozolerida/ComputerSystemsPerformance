@@ -117,7 +117,7 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     //     }
     // }
 
-    std::cout << "Highest index: " << highest << "\n\n";
+    // std::cout << "Highest index: " << highest << "\n\n";
 
     delete[] output_buffer;
     delete[] sharedIndices;
