@@ -73,15 +73,11 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     sharedIndices = new std::atomic<int>[max_partition_hash+1];
     mut = new std::mutex[max_partition_hash+1];
 
-    std::cout << "1\n";
-
     std::tuple<u64, u64>** output_buffer = new std::tuple<u64, u64>*[max_partition_hash+1]; // max hash includes 0, so we do +1
     for(int i = 0; i <= max_partition_hash; i++){
         output_buffer[i] = new std::tuple<u64, u64>[partition_buffer_size];
         sharedIndices[i] = 0;
     }
-
-    std::cout << "2\n";
 
     // create threads
     for (int i = 0; i < num_threads; ++i)
@@ -99,9 +95,7 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
         threads.push_back(std::move(thread));
     }
 
-    std::cout << "3\n";
-
-    // // measuring the time
+    // measuring the time
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < num_threads; ++i)
     {
@@ -109,8 +103,6 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     }
     auto end = std::chrono::steady_clock::now();
     
-    std::cout << "4\n";
-
     // calculate the elapsed time
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds);
@@ -121,9 +113,9 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     for(int i = 0; i <= max_partition_hash; i++){
         delete[] output_buffer[i];
 
-        if(sharedIndices[i] > highest){
-            highest = sharedIndices[i];
-        }
+        // if(sharedIndices[i] > highest){
+        //     highest = sharedIndices[i];
+        // }
     }
 
     std::cout << "Highest index: " << highest << "\n\n";
