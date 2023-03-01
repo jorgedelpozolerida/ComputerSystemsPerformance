@@ -32,7 +32,7 @@ u64* generate_input()
 }
 
 // we might want to pass the buffer by reference
-void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<u64, u64>** buffer, int max_part_s)
+void process_partition(u64* data, int start, int end, int hash_bits, std::vector<std::tuple<u64, u64>>* buffer, int max_part_s)
 {
     utils util_obj; 
 
@@ -42,7 +42,7 @@ void process_partition(u64* data, int start, int end, int hash_bits, std::tuple<
         std::tuple<int, u64> t = std::make_tuple(hash, data[i]);
 
         std::unique_lock<std::mutex> lock(mut[hash]);
-        buffer[hash][sharedIndices[hash]] = t;
+        buffer[hash].push_back(t);
         sharedIndices[hash] += 1;
 
         lock.unlock();
@@ -72,9 +72,9 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     sharedIndices = new std::atomic<int>[max_partition_hash+1];
     mut = new std::mutex[max_partition_hash+1];
 
-    std::tuple<u64, u64>** output_buffer = new std::tuple<u64, u64>*[max_partition_hash+1]; // max hash includes 0, so we do +1
+    std::vector<std::tuple<u64, u64>>* output_buffer = new std::vector<std::tuple<u64, u64>>[max_partition_hash+1]; // max hash includes 0, so we do +1
     for(int i = 0; i <= max_partition_hash; i++){
-        output_buffer[i] = new std::tuple<u64, u64>[partition_buffer_size];
+        output_buffer[i] = std::vector<std::tuple<u64, u64>>();
         sharedIndices[i] = 0;
     }
 
@@ -108,16 +108,14 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     
     std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n";
 
-    int highest = 0;
-    for(int i = 0; i <= max_partition_hash; i++){
-        std::cout << i << " " << sharedIndices[i] << "\n";
+    // int highest = 0;
+    // for(int i = 0; i <= max_partition_hash; i++){
+    //     std::cout << i << " " << sharedIndices[i] << "\n";
 
-        delete[] output_buffer[i];
-
-        if(sharedIndices[i] > highest){
-            highest = sharedIndices[i];
-        }
-    }
+    //     if(sharedIndices[i] > highest){
+    //         highest = sharedIndices[i];
+    //     }
+    // }
 
     std::cout << "Highest index: " << highest << "\n\n";
 
