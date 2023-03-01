@@ -110,7 +110,7 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
 
     int highest = 0;
     for(int i = 0; i <= max_partition_hash; i++){
-        std::cout << i << " " << max_partition_hash << "\n";
+        std::cout << i << " " << sharedIndices[i] << "\n";
 
         delete[] output_buffer[i];
 
