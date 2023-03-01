@@ -127,14 +127,14 @@ int main()
     srand(time(NULL));
     u64* input = generate_input();
 
-    for (int experiment = 1; experiment <= 1; experiment += 1) 
+    for (int experiment = 1; experiment <= 8; experiment += 1) 
     {
         std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
         std::ofstream fout(filename);
 
         fout << "Threads;Hash_Bits;Running Time (ms)\n";
 
-        for (int hash_bits = 15; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
+        for (int hash_bits = 1; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
         {
             std::cout << " HASH BITS: " << hash_bits <<"\n";
 
