@@ -10,7 +10,7 @@
 
 const int INPUT_SIZE = 2000000;
 const int MAX_NUM_THREADS = 32;
-const int MAX_HASH_BITS = 32;
+const int MAX_HASH_BITS = 26;
 
 std::atomic<int> *sharedIndices;
 
@@ -44,7 +44,6 @@ void process_partition(u64* data, int start, int end, int hash_bits, std::vector
         std::unique_lock<std::mutex> lock(mut[hash]);
         buffer[hash].push_back(t);
         sharedIndices[hash] += 1;
-
         lock.unlock();
     }
 }
@@ -52,7 +51,7 @@ void process_partition(u64* data, int start, int end, int hash_bits, std::vector
 int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
 {
     // maximum hash value
-    int max_partition_hash = utils::max_partition_hash_static(hash_bits);
+    u64 max_partition_hash = utils::max_partition_hash_static(hash_bits);
 
     // random data to be partitioned
     const int thread_divide_size = INPUT_SIZE / num_threads;
@@ -66,14 +65,14 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
         partition_buffer_size = max_partition_hash; //partition_buffer_size is 0 so I set it arb
     }
 
-    std::cout << "Maximum partition buffer size: " << partition_buffer_size <<"\n";
+    std::cout << "Maximum partition buffer size: " << partition_buffer_size << "\n";
 
     // reset the shared index and create the buffer
     sharedIndices = new std::atomic<int>[max_partition_hash+1];
     mut = new std::mutex[max_partition_hash+1];
 
     std::vector<std::tuple<u64, u64>>* output_buffer = new std::vector<std::tuple<u64, u64>>[max_partition_hash+1]; // max hash includes 0, so we do +1
-    for(int i = 0; i <= max_partition_hash; i++){
+    for(u64 i = 0; i <= max_partition_hash; i++){
         output_buffer[i] = std::vector<std::tuple<u64, u64>>();
         sharedIndices[i] = 0;
     }
@@ -109,14 +108,17 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n";
 
     // int highest = 0;
+    // int total = 0;
     // for(int i = 0; i <= max_partition_hash; i++){
     //     std::cout << i << " " << sharedIndices[i] << "\n";
+    //     total += sharedIndices[i];
 
     //     if(sharedIndices[i] > highest){
     //         highest = sharedIndices[i];
     //     }
     // }
 
+    // std::cout << "Sum index: " << total << "\n";
     // std::cout << "Highest index: " << highest << "\n\n";
 
     delete[] output_buffer;
