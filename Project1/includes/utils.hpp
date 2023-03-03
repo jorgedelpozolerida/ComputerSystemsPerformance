@@ -1,6 +1,13 @@
+#ifndef UTILS_H
+#define UTILS_H
+#include <iostream>
 #include<cstdlib>
 #include <chrono>
 #include <time.h>
+#include "picosha.h"
+#include <cstring>
+#include <bitset>
+
 
 // ensure only 15-bits
 #define RAND() (rand() & 0x7fff)
@@ -10,19 +17,23 @@ typedef unsigned long long u64;
 
 class utils
 {
-private:
-    /* data */
 public:
     utils(/* args */);
     ~utils();
 
-    // given an input, output a hash of the output that is 0 >= max_size
-    // h(c, m) = ((ac+b) mod p) mod m
     u64 hash(u64 input, int hash_bits){
-        u64 num = (((u64)RAND()<<48) ^ ((u64)RAND()<<35) ^ ((u64)RAND()<<22) ^
-                   ((u64)RAND()<< 9) ^ ((u64)RAND()>> 4));
+        std::string hash = picosha2::hash256_hex_string(std::to_string(input));
+        u64 num = 0;
 
-        return num % max_partition_hash(hash_bits);
+        // get only the first 32 bytes of the hash
+        for(int i = 0; i < 32; i++){
+            // shift each character 2 bits and add it to the hash with XOR
+            u64 temp = (u64)hash.at(i);
+            num = num ^ (temp << (2*i));
+        }
+
+        // mask the hash to fit our max hash value
+        return num & (max_partition_hash(hash_bits));
     }
 
     u64 max_partition_hash(int hash_bits){
@@ -35,7 +46,9 @@ public:
 };
 
 // constructor
-utils::utils(/* args */){}
+utils::utils(/* args */){
+}
 
 // destructor
 utils::~utils(){}
+#endif

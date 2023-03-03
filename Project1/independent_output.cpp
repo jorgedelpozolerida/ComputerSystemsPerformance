@@ -8,7 +8,7 @@
 
 const int INPUT_SIZE = 2000000;
 const int MAX_NUM_THREADS = 32;
-const int MAX_HASH_BITS = 32;
+const int MAX_HASH_BITS = 26;
 
 // u64 is defined in utils.hpp - it is an alias for usigned long long
 u64 *generate_input()
@@ -52,8 +52,8 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
         std::vector<std::vector<std::tuple<u64, u64>>> output_buffer;
 
         // create "partitions"
-        int max_partition_hash = utils::max_partition_hash_static(hash_bits);
-        for (size_t i = 0; i <= max_partition_hash; i++)
+        u64 max_partition_hash = utils::max_partition_hash_static(hash_bits);
+        for (u64 i = 0; i <= max_partition_hash; i++)
         {
             std::vector<std::tuple<u64, u64>> partition_buffer;
             output_buffer.push_back(partition_buffer);
