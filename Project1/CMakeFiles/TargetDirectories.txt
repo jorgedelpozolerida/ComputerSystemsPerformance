@@ -1,4 +1,4 @@
-C:/Users/ivart/Documents/School/Semester 2/ComputerSystemsPerformance/Project1/CMakeFiles/independent_output.dir
-C:/Users/ivart/Documents/School/Semester 2/ComputerSystemsPerformance/Project1/CMakeFiles/concurrent_output.dir
-C:/Users/ivart/Documents/School/Semester 2/ComputerSystemsPerformance/Project1/CMakeFiles/edit_cache.dir
-C:/Users/ivart/Documents/School/Semester 2/ComputerSystemsPerformance/Project1/CMakeFiles/rebuild_cache.dir
+/home/group_ivas/ComputerSystemsPerformance/Project1/CMakeFiles/rebuild_cache.dir
+/home/group_ivas/ComputerSystemsPerformance/Project1/CMakeFiles/edit_cache.dir
+/home/group_ivas/ComputerSystemsPerformance/Project1/CMakeFiles/independent_output.dir
+/home/group_ivas/ComputerSystemsPerformance/Project1/CMakeFiles/concurrent_output.dir
