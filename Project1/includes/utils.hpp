@@ -22,18 +22,18 @@ public:
     ~utils();
 
     u64 hash(u64 input, int hash_bits){
-        std::string hash = picosha2::hash256_hex_string(std::to_string(input));
-        u64 num = 0;
+        // std::string hash = picosha2::hash256_hex_string(std::to_string(input));
+        // u64 num = 0;
 
-        // get only the first 32 bytes of the hash
-        for(int i = 0; i < 32; i++){
-            // shift each character 2 bits and add it to the hash with XOR
-            u64 temp = (u64)hash.at(i);
-            num = num ^ (temp << (2*i));
-        }
+        // // get only the first 32 bytes of the hash
+        // for(int i = 0; i < 32; i++){
+        //     // shift each character 2 bits and add it to the hash with XOR
+        //     u64 temp = (u64)hash.at(i);
+        //     num = num ^ (temp << (2*i));
+        // }
 
         // mask the hash to fit our max hash value
-        return num & (max_partition_hash(hash_bits));
+        return input % (max_partition_hash(hash_bits)+1);
     }
 
     u64 max_partition_hash(int hash_bits){
