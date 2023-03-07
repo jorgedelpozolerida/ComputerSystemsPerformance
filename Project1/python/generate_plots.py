@@ -93,8 +93,8 @@ def plot_experiment(ax, data_technique, title):
 
 def main(args):
 
-    input_dir = args.in_dir
-    output_dir = args.out_dir
+    input_dir = os.path.abspath(args.in_dir)
+    output_dir = os.path.abspath(args.out_dir)
 
     experiment_dirs = os.listdir(input_dir)
     experiment_dirs.sort(reverse=True)
