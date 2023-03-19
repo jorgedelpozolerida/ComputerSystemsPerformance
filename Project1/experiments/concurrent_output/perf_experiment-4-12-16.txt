@@ -1,0 +1,19 @@
+# started on Sun Mar 19 21:37:02 2023
+
+
+ Performance counter stats for './concurrent_output 12 16':
+
+       4622.785984      task-clock (msec)         #    4.721 CPUs utilized          
+            15,317      context-switches          #    0.003 M/sec                  
+                 0      cpu-migrations            #    0.000 K/sec                  
+            14,948      page-faults               #    0.003 M/sec                  
+     5,136,074,103      cycles                    #    1.111 GHz                      (83.03%)
+       227,554,354      stalled-cycles-frontend   #    4.43% frontend cycles idle     (82.79%)
+     2,970,284,793      stalled-cycles-backend    #   57.83% backend cycles idle      (34.18%)
+     3,346,852,539      instructions              #    0.65  insn per cycle         
+                                                  #    0.89  stalled cycles per insn  (50.88%)
+       667,628,634      branches                  #  144.421 M/sec                    (67.68%)
+         2,318,812      branch-misses             #    0.35% of all branches          (84.07%)
+
+       0.979296055 seconds time elapsed
+

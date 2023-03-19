@@ -1,19 +1,19 @@
-# started on Sun Mar 19 18:06:35 2023
+# started on Sun Mar 19 20:25:35 2023
 
 
  Performance counter stats for './independent_output 14 1':
 
-       1947.958655      task-clock (msec)         #    0.999 CPUs utilized          
-                 4      context-switches          #    0.002 K/sec                  
+       1372.658759      task-clock (msec)         #    0.999 CPUs utilized          
+                 6      context-switches          #    0.004 K/sec                  
                  0      cpu-migrations            #    0.000 K/sec                  
-            26,598      page-faults               #    0.014 M/sec                  
-     2,668,574,417      cycles                    #    1.370 GHz                      (83.20%)
-        82,975,349      stalled-cycles-frontend   #    3.11% frontend cycles idle     (83.37%)
-     1,150,630,230      stalled-cycles-backend    #   43.12% backend cycles idle      (33.43%)
-     3,013,388,062      instructions              #    1.13  insn per cycle         
-                                                  #    0.38  stalled cycles per insn  (50.05%)
-       583,246,719      branches                  #  299.414 M/sec                    (66.68%)
-         1,508,380      branch-misses             #    0.26% of all branches          (83.32%)
+            26,837      page-faults               #    0.020 M/sec                  
+     2,672,973,983      cycles                    #    1.947 GHz                      (83.28%)
+        80,175,214      stalled-cycles-frontend   #    3.00% frontend cycles idle     (83.38%)
+     1,171,002,113      stalled-cycles-backend    #   43.81% backend cycles idle      (33.34%)
+     3,043,810,872      instructions              #    1.14  insn per cycle         
+                                                  #    0.38  stalled cycles per insn  (49.93%)
+       584,410,277      branches                  #  425.751 M/sec                    (66.52%)
+         1,138,734      branch-misses             #    0.19% of all branches          (83.11%)
 
-       1.949006035 seconds time elapsed
+       1.373643067 seconds time elapsed
 

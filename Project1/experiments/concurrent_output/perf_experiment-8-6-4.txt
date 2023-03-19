@@ -1,19 +1,19 @@
-# started on Sun Mar 19 18:50:20 2023
+# started on Sun Mar 19 21:53:11 2023
 
 
  Performance counter stats for './concurrent_output 6 4':
 
-       3535.753936      task-clock (msec)         #    2.520 CPUs utilized          
-             3,582      context-switches          #    0.001 M/sec                  
-                 2      cpu-migrations            #    0.001 K/sec                  
-            17,654      page-faults               #    0.005 M/sec                  
-     4,756,227,043      cycles                    #    1.345 GHz                      (83.45%)
-       187,380,626      stalled-cycles-frontend   #    3.94% frontend cycles idle     (83.00%)
-     2,925,246,538      stalled-cycles-backend    #   61.50% backend cycles idle      (33.55%)
-     3,311,484,814      instructions              #    0.70  insn per cycle         
-                                                  #    0.88  stalled cycles per insn  (50.40%)
-       667,487,437      branches                  #  188.782 M/sec                    (66.92%)
-         1,665,273      branch-misses             #    0.25% of all branches          (83.89%)
+       3707.416020      task-clock (msec)         #    2.532 CPUs utilized          
+             3,589      context-switches          #    0.968 K/sec                  
+                 7      cpu-migrations            #    0.002 K/sec                  
+            17,889      page-faults               #    0.005 M/sec                  
+     4,700,645,717      cycles                    #    1.268 GHz                      (83.23%)
+       192,504,618      stalled-cycles-frontend   #    4.10% frontend cycles idle     (83.97%)
+     2,881,771,686      stalled-cycles-backend    #   61.31% backend cycles idle      (32.80%)
+     3,294,987,084      instructions              #    0.70  insn per cycle         
+                                                  #    0.87  stalled cycles per insn  (49.23%)
+       663,423,741      branches                  #  178.945 M/sec                    (65.97%)
+         1,738,184      branch-misses             #    0.26% of all branches          (83.19%)
 
-       1.402817028 seconds time elapsed
+       1.464136744 seconds time elapsed
 

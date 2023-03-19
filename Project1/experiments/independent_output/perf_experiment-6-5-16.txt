@@ -1,0 +1,19 @@
+# started on Sun Mar 19 20:54:15 2023
+
+
+ Performance counter stats for './independent_output 5 16':
+
+       2005.105319      task-clock (msec)         #    3.692 CPUs utilized          
+             3,786      context-switches          #    0.002 M/sec                  
+                 0      cpu-migrations            #    0.000 K/sec                  
+            13,269      page-faults               #    0.007 M/sec                  
+     2,340,332,933      cycles                    #    1.167 GHz                      (81.94%)
+        68,046,643      stalled-cycles-frontend   #    2.91% frontend cycles idle     (84.05%)
+       869,928,265      stalled-cycles-backend    #   37.17% backend cycles idle      (34.01%)
+     2,674,419,593      instructions              #    1.14  insn per cycle         
+                                                  #    0.33  stalled cycles per insn  (49.67%)
+       527,596,203      branches                  #  263.126 M/sec                    (65.61%)
+           863,206      branch-misses             #    0.16% of all branches          (82.24%)
+
+       0.543117599 seconds time elapsed
+

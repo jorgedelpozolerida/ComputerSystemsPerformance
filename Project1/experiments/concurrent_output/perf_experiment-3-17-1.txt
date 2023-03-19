@@ -1,19 +1,19 @@
-# started on Sun Mar 19 18:35:34 2023
+# started on Sun Mar 19 21:33:26 2023
 
 
  Performance counter stats for './concurrent_output 17 1':
 
-       3439.642751      task-clock (msec)         #    1.000 CPUs utilized          
-                 6      context-switches          #    0.002 K/sec                  
+       3398.978309      task-clock (msec)         #    1.000 CPUs utilized          
+                 8      context-switches          #    0.002 K/sec                  
                  0      cpu-migrations            #    0.000 K/sec                  
             28,506      page-faults               #    0.008 M/sec                  
-     4,712,934,078      cycles                    #    1.370 GHz                      (83.25%)
-       140,523,822      stalled-cycles-frontend   #    2.98% frontend cycles idle     (83.31%)
-     2,604,821,369      stalled-cycles-backend    #   55.27% backend cycles idle      (33.44%)
-     4,211,637,198      instructions              #    0.89  insn per cycle         
-                                                  #    0.62  stalled cycles per insn  (50.07%)
-       809,990,481      branches                  #  235.487 M/sec                    (66.70%)
-         3,317,598      branch-misses             #    0.41% of all branches          (83.32%)
+     4,669,215,212      cycles                    #    1.374 GHz                      (83.28%)
+       130,450,286      stalled-cycles-frontend   #    2.79% frontend cycles idle     (83.29%)
+     2,567,503,849      stalled-cycles-backend    #   54.99% backend cycles idle      (33.43%)
+     4,223,147,528      instructions              #    0.90  insn per cycle         
+                                                  #    0.61  stalled cycles per insn  (50.13%)
+       811,380,999      branches                  #  238.713 M/sec                    (66.73%)
+         2,788,476      branch-misses             #    0.34% of all branches          (83.32%)
 
-       3.440874729 seconds time elapsed
+       3.400435658 seconds time elapsed
 

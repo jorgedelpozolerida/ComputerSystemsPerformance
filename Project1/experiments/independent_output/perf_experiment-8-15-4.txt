@@ -1,19 +1,19 @@
-# started on Sun Mar 19 18:24:58 2023
+# started on Sun Mar 19 21:14:07 2023
 
 
  Performance counter stats for './independent_output 15 4':
 
-       3221.137314      task-clock (msec)         #    2.151 CPUs utilized          
-             9,442      context-switches          #    0.003 M/sec                  
-                 1      cpu-migrations            #    0.000 K/sec                  
-            18,823      page-faults               #    0.006 M/sec                  
-     3,845,134,517      cycles                    #    1.194 GHz                      (83.71%)
-       154,265,311      stalled-cycles-frontend   #    4.01% frontend cycles idle     (82.76%)
-     1,671,978,005      stalled-cycles-backend    #   43.48% backend cycles idle      (33.53%)
-     4,095,615,529      instructions              #    1.07  insn per cycle         
-                                                  #    0.41  stalled cycles per insn  (50.14%)
-       787,078,991      branches                  #  244.348 M/sec                    (67.14%)
-         3,499,456      branch-misses             #    0.44% of all branches          (84.28%)
+       3418.992305      task-clock (msec)         #    2.180 CPUs utilized          
+            10,262      context-switches          #    0.003 M/sec                  
+                 0      cpu-migrations            #    0.000 K/sec                  
+            18,791      page-faults               #    0.005 M/sec                  
+     3,863,850,895      cycles                    #    1.130 GHz                      (83.91%)
+       165,348,674      stalled-cycles-frontend   #    4.28% frontend cycles idle     (83.67%)
+     1,657,059,850      stalled-cycles-backend    #   42.89% backend cycles idle      (32.42%)
+     4,081,099,147      instructions              #    1.06  insn per cycle         
+                                                  #    0.41  stalled cycles per insn  (48.04%)
+       790,635,799      branches                  #  231.248 M/sec                    (65.95%)
+         3,835,745      branch-misses             #    0.49% of all branches          (83.51%)
 
-       1.497796817 seconds time elapsed
+       1.568472529 seconds time elapsed
 

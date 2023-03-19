@@ -1,19 +1,19 @@
-# started on Sun Mar 19 18:41:18 2023
+# started on Sun Mar 19 21:41:14 2023
 
 
  Performance counter stats for './concurrent_output 12 2':
 
-       2405.163582      task-clock (msec)         #    1.801 CPUs utilized          
-             1,004      context-switches          #    0.417 K/sec                  
+       2431.930212      task-clock (msec)         #    1.781 CPUs utilized          
+               946      context-switches          #    0.389 K/sec                  
                  0      cpu-migrations            #    0.000 K/sec                  
-            21,051      page-faults               #    0.009 M/sec                  
-     4,007,743,282      cycles                    #    1.666 GHz                      (83.25%)
-        98,122,371      stalled-cycles-frontend   #    2.45% frontend cycles idle     (82.94%)
-     2,361,514,172      stalled-cycles-backend    #   58.92% backend cycles idle      (33.82%)
-     3,266,333,672      instructions              #    0.82  insn per cycle         
-                                                  #    0.72  stalled cycles per insn  (50.14%)
-       645,538,880      branches                  #  268.397 M/sec                    (66.63%)
-         1,379,395      branch-misses             #    0.21% of all branches          (83.20%)
+            21,153      page-faults               #    0.009 M/sec                  
+     3,887,982,477      cycles                    #    1.599 GHz                      (83.17%)
+        91,239,966      stalled-cycles-frontend   #    2.35% frontend cycles idle     (83.06%)
+     2,293,603,987      stalled-cycles-backend    #   58.99% backend cycles idle      (33.77%)
+     3,262,537,175      instructions              #    0.84  insn per cycle         
+                                                  #    0.70  stalled cycles per insn  (50.00%)
+       646,095,162      branches                  #  265.672 M/sec                    (66.51%)
+         1,079,942      branch-misses             #    0.17% of all branches          (83.27%)
 
-       1.335255958 seconds time elapsed
+       1.365355097 seconds time elapsed
 
