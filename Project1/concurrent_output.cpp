@@ -9,8 +9,6 @@
 #include <fstream>
 
 const int INPUT_SIZE = 2000000;
-const int MAX_NUM_THREADS = 32;
-const int MAX_HASH_BITS = 26;
 
 std::atomic<int> *sharedIndices;
 
@@ -58,14 +56,9 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     int partition_buffer_size = (INPUT_SIZE/(max_partition_hash))*hash_bits;
     std::vector<std::thread> threads;
 
-    std::cout << "Threads: " << num_threads <<"\n";
-    std::cout << "Maximum output size: " << max_partition_hash <<"\n";
-
     if(partition_buffer_size < 5){
         partition_buffer_size = max_partition_hash; //partition_buffer_size is 0 so I set it arb
     }
-
-    std::cout << "Maximum partition buffer size: " << partition_buffer_size << "\n";
 
     // reset the shared index and create the buffer
     sharedIndices = new std::atomic<int>[max_partition_hash+1];
@@ -104,22 +97,6 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     // calculate the elapsed time
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_seconds);
-    
-    std::cout << "elapsed time: " << elapsed_ms.count() << "ms\n";
-
-    // int highest = 0;
-    // int total = 0;
-    // for(int i = 0; i <= max_partition_hash; i++){
-    //     std::cout << i << " " << sharedIndices[i] << "\n";
-    //     total += sharedIndices[i];
-
-    //     if(sharedIndices[i] > highest){
-    //         highest = sharedIndices[i];
-    //     }
-    // }
-
-    // std::cout << "Sum index: " << total << "\n";
-    // std::cout << "Highest index: " << highest << "\n\n";
 
     delete[] output_buffer;
     delete[] sharedIndices;
@@ -128,31 +105,18 @@ int64_t run_experiment(int hash_bits, int num_threads, u64* &input)
     return elapsed_ms.count();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     srand(time(NULL));
     u64* input = generate_input();
 
-    for (int experiment = 1; experiment <= 8; experiment += 1) 
-    {
-        std::string filename = "./experiments/concurrent_output/experiment_" + std::to_string(experiment) + ".csv";
-        std::ofstream fout(filename);
+    // fout << "Threads;Hash_Bits;Running Time (ms)\n" << std::flush;
 
-        fout << "Threads;Hash_Bits;Running Time (ms)\n";
+    int hash_bits = atoi(argv[1]);
+    int num_threads = atoi(argv[2]);
 
-        for (int hash_bits = 1; hash_bits <= MAX_HASH_BITS; hash_bits += 1) 
-        {
-            std::cout << " HASH BITS: " << hash_bits <<"\n";
-
-            for (int num_threads = 1; num_threads <= MAX_NUM_THREADS; num_threads *= 2) 
-            {
-                int64_t exp = run_experiment(hash_bits, num_threads, input);
-                fout << num_threads << ";" << hash_bits << ";" << exp << "\n";
-            }
-        }
-
-        fout.close();
-    }
+    int64_t exp = run_experiment(hash_bits, num_threads, input);
+    std::cout << num_threads << ";" << hash_bits << ";" << exp << "\n";
 
     delete[] input;
 }
