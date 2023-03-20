@@ -19,7 +19,7 @@ import logging                                                                  
 import numpy as np                                                                  # NOQA E402
 import pandas as pd                                                                 # NOQA E402
 import matplotlib.pyplot as plt
-
+import re
 
 
 logging.basicConfig(level=logging.INFO)
@@ -30,6 +30,26 @@ PLOT_MARKERS = ["|", "x", "2", "s", "P", "o"]
 PLOT_COLORS = ['r', 'g', 'b', 'm', 'c', 'y']
 plt.rcParams.update({'font.size': 16})
 plt.rcParams['lines.linewidth'] = 0.8
+
+def get_perf_stats(df: pd.DataFrame, experiment_dir: str, experiment_num):
+    (switches, cacheMisses, dTLBLoadMisses, iTLBLoadMisses) = ([], [], [], [])
+
+    for i, row in df.iterrows():
+        (threads, bits) = (row['threads'], row['bits'])
+        file_name = os.path.join(experiment_dir, f"perf_experiment-{experiment_num}-{int(bits)}-{int(threads)}.txt")
+
+        with open(file_name, 'r') as file:
+            data = file.read().replace(",", "")
+            switches.append(int(re.findall(r"[1-9]+.*context-switches", data)[0].split()[0]))
+            cacheMisses.append(int(re.findall(r"[1-9]+.*cache-misses", data)[0].split()[0]))
+            dTLBLoadMisses.append(int(re.findall(r"[1-9]+.*dTLB-load-misses", data)[0].split()[0]))
+            iTLBLoadMisses.append(int(re.findall(r"[1-9]+.*iTLB-load-misses", data)[0].split()[0]))
+
+    df["context-switches"] = switches
+    df["cache-misses"] = cacheMisses
+    df["dTLB-load-misses"] = dTLBLoadMisses
+    df["iTLB-load-misses"] = iTLBLoadMisses
+    return df
 
 # TO DO:
 # - Include memcpy for comparison (extreme upper bound)
@@ -56,13 +76,18 @@ def combine_experiment_trials(experiment_dir, args):
     '''
     Average over experiment runs
     '''
-    all_files = glob.glob(os.path.join(experiment_dir, "*.csv"))
-    all_dfs = [process_single_experiment_run(os.path.join(experiment_dir, f), args) for f in all_files]
+    all_dfs = []
+
+    for file in os.listdir(experiment_dir):
+        if file.endswith(".csv"):
+            num = int(re.findall(r"[1-9]",file)[0])
+            df = process_single_experiment_run(os.path.join(experiment_dir, file), args)
+            all_dfs.append(get_perf_stats(df, experiment_dir, num))
     data_averaged = pd.concat(all_dfs).groupby(['bits', 'threads']).mean().reset_index()
     return data_averaged
 
 
-def plot_experiment(ax, data_technique, title):
+def plot_experiment(ax, data_technique, title, type, y_lable):
     '''
     Plot data for an experiment on given axis
     '''
@@ -75,14 +100,14 @@ def plot_experiment(ax, data_technique, title):
         "Need to specify more markers and colors for threads in PLOT_MARKERS PLOT_COLORS "
     # Set axes values
     ax.set_title(f"{title}")
-    ax.set_ylabel("Millions of Tuples per Second")
+    ax.set_ylabel(y_lable)
     ax.set_xlabel("Hash Bits")
     ax.set_xticks(ticks=ticks, labels=ticks)
 
     # Plot
     for j, th in enumerate(thread_values):
         thread_data = data_technique.query("threads == @th")
-        ax.plot(thread_data['bits'], thread_data['throughput'], 
+        ax.plot(thread_data['bits'], thread_data[type], 
             label=labels[j], 
             marker=PLOT_MARKERS[j % len(PLOT_MARKERS)], 
             color=PLOT_COLORS[j % len(PLOT_COLORS)])
@@ -101,32 +126,35 @@ def main(args):
     
     # Get all data
     data_techniques = [combine_experiment_trials(os.path.join(input_dir, subdir), args) for subdir in experiment_dirs ]
-    
-    # Big plot config
-    fig_all, axs_all = plt.subplots(1, len(experiment_dirs), figsize=(15,5), sharex=True)
-    fig_all.subplots_adjust(hspace=0)
-    y_lims = [0, np.ceil(max(  [ d['throughput'].max() for d in data_techniques] ))]
+    values = ['throughput', "context-switches", "cache-misses", "dTLB-load-misses", "iTLB-load-misses"]
+    titles = ["Millions of Tuples per Second", "Context Switches", "Cache Misses", "dTLB Load Misses", "iTLB Load Misses"]
 
-    # Plot
-    for i, technique_dir  in enumerate(experiment_dirs):
+    for j, val in enumerate(values):
+        # Big plot config
+        fig_all, axs_all = plt.subplots(1, len(experiment_dirs), figsize=(15,5), sharex=True)
+        fig_all.subplots_adjust(hspace=0)
+        y_lims = [0, np.ceil(max(  [ d[val].max() for d in data_techniques] ))]
 
-        data_technique = data_techniques[i]
+        # Plot
+        for i, technique_dir  in enumerate(experiment_dirs):
 
-        # Single plot creation and saving
-        fig, ax = plt.subplots(figsize=(8,5))
-        ax = plot_experiment(ax,  data_technique, title=technique_dir)
-        fig.tight_layout()
-        fig.savefig(os.path.join(output_dir, f"{technique_dir}_plot.png" ))
+            data_technique = data_techniques[i]
 
-        # Subplot
-        axs_all[i] = plot_experiment(axs_all[i], data_technique, title=technique_dir)
-        axs_all[i].set_ylim(y_lims)
+            # Single plot creation and saving
+            fig, ax = plt.subplots(figsize=(8,5))
+            ax = plot_experiment(ax,  data_technique, title=technique_dir, type=val, y_lable=titles[j])
+            fig.tight_layout()
+            fig.savefig(os.path.join(output_dir, f"{technique_dir}val_{val}_plot.png" ))
+
+            # Subplot
+            axs_all[i] = plot_experiment(axs_all[i], data_technique, title=technique_dir, type=val, y_lable=titles[j])
+            axs_all[i].set_ylim(y_lims)
+            
+            _logger.info( f"Generated {val} plots for: {technique_dir }")
         
-        _logger.info( f"Generated plots for: {technique_dir }")
-    
-    # Big plot saving
-    fig_all.tight_layout()
-    fig_all.savefig(os.path.join(output_dir, f"all_experiments_plot.png" ))
+        # Big plot saving
+        fig_all.tight_layout()
+        fig_all.savefig(os.path.join(output_dir, f"all_experiments_plot_{val}.png" ))
 
 
 
