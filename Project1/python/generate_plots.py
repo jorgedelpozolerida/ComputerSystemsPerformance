@@ -129,6 +129,12 @@ def main(args):
     values = ['throughput', "context-switches", "cache-misses", "dTLB-load-misses", "iTLB-load-misses"]
     titles = ["Millions of Tuples per Second", "Context Switches", "Cache Misses", "dTLB Load Misses", "iTLB Load Misses"]
 
+
+    # Superplot config
+    super_fig, super_axs = plt.subplots(len(values), len(experiment_dirs), figsize=(15,25))
+    super_fig.subplots_adjust(hspace=0)
+    
+    
     for j, val in enumerate(values):
         # Big plot config
         fig_all, axs_all = plt.subplots(1, len(experiment_dirs), figsize=(15,5), sharex=True)
@@ -150,12 +156,20 @@ def main(args):
             axs_all[i] = plot_experiment(axs_all[i], data_technique, title=technique_dir, type=val, y_lable=titles[j])
             axs_all[i].set_ylim(y_lims)
             
+            # Subplot in superplot
+            super_axs[j,i] = plot_experiment(super_axs[j,i], data_technique, title=technique_dir, type=val, y_lable=titles[j])
+            super_axs[j,i].set_ylim(y_lims)          
+            
             _logger.info( f"Generated {val} plots for: {technique_dir }")
-        
+            
+
         # Big plot saving
         fig_all.tight_layout()
         fig_all.savefig(os.path.join(output_dir, f"all_experiments_plot_{val}.png" ))
-
+        
+        # Superplot saving
+        super_fig.tight_layout()
+        super_fig.savefig(os.path.join(output_dir, f"Superplot.png" ))
 
 
 def parse_args():
