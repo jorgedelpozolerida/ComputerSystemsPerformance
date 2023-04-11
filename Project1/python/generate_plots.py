@@ -131,7 +131,7 @@ def main(args):
 
 
     # Superplot config
-    super_fig, super_axs = plt.subplots(len(values), len(experiment_dirs), figsize=(15,25))
+    super_fig, super_axs = plt.subplots(len(values), len(experiment_dirs), figsize=(15,20))
     super_fig.subplots_adjust(hspace=0)
     
     
