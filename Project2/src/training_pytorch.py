@@ -18,8 +18,8 @@ import utils
 logging.basicConfig(level=logging.INFO)
 _logger = logging.getLogger(__name__)
 
-current_file_path = os.path.abspath(__file__)
-data_path = os.path.join(current_file_path,  os.pardir, 'data')
+THISFILE_PATH = os.path.abspath(__file__)
+DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
 
 
 

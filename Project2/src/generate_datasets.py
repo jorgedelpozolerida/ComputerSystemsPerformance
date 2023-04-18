@@ -25,13 +25,13 @@ import pandas as pd                                                             
 logging.basicConfig(level=logging.INFO)
 _logger = logging.getLogger(__name__)
 
-current_file_path = os.path.abspath(__file__)
-data_path = os.path.join( os.path.abspath(os.path.join(current_file_path, os.pardir, os.pardir)), 'data')
+THISFILE_PATH = os.path.abspath(__file__)
+DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
 
 def main(args):
 
     if args.out_dir is None:
-        out_path = data_path
+        out_path = DATAIN_PATH
     else:
         out_path = os.path(args.out_dir)
         
