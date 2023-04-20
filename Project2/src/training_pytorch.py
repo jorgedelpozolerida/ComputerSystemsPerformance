@@ -30,12 +30,15 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 def main(args):
     (x_train, y_train), _ = get_dataset(args.dataset)
     x_train = torch.from_numpy(x_train)
-    y_train = torch.from_numpy(np.array(y_train))
+    y_train = np.array(y_train)
+    print(y_train, len(x_train))
+
     train_set = torch.utils.data.TensorDataset(x_train, y_train)
 
-    print(len(y_train), len(x_train))
+    
 
     trainloader = torch.utils.data.DataLoader(train_set, batch_size=128, shuffle=True, num_workers=2)
+    print("Trainloader",trainloader)
 
     # Define the ResNet50 model
     model = torchvision.models.resnet50(pretrained=False)
