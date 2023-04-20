@@ -61,6 +61,6 @@ Project1/CMakeFiles/
 # External projects
 *-prefix/
 
-*datain/
+Project2/datain/
 
 # End of https://www.toptal.com/developers/gitignore/api/cmake,c++
