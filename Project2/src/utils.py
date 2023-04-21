@@ -13,6 +13,7 @@ from torchvision import datasets, transforms
 import logging                                                                      # NOQA E402
 import numpy as np                                                                  # NOQA E402
 import pandas as pd                                                                 # NOQA E402
+import matplotlib.pyplot as plt
 
 # constant which denotes where to cache the data
 SAVE_DIR = "../datain"
@@ -24,6 +25,8 @@ def load_MNIST(save_dir, test_split=0.1):
     '''
     data_raw = datasets.MNIST(root=save_dir, train=True, download=True, transform=transforms.ToTensor())
     data = data_raw.data.numpy()
+    data=np.stack((data, data, data), axis=3)
+
     labels = data_raw.targets.numpy()
     pivot = int(len(data) * (1-test_split))
     

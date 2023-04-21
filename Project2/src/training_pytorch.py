@@ -29,23 +29,29 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 
 def main(args):
     (x_train, y_train), _ = get_dataset(args.dataset)
-    x_train = torch.from_numpy(x_train)
-    y_train = np.array(y_train)
-    print(y_train, len(x_train))
 
-    train_set = torch.utils.data.TensorDataset(x_train, y_train)
-
-    
-
+    data_tensor = torch.from_numpy(x_train).permute(0, 3, 1, 2).float()
+    labels_tensor = torch.tensor(y_train, dtype=torch.long)
+    train_set = torch.utils.data.TensorDataset(data_tensor, labels_tensor)
     trainloader = torch.utils.data.DataLoader(train_set, batch_size=128, shuffle=True, num_workers=2)
-    print("Trainloader",trainloader)
+
+    # Load the ResNet model
+    if args.resnet_size == 'resnet50':
+        model = torchvision.models.resnet50(pretrained=False)
+    elif args.resnet_size == 'resnet101':
+        model = torchvision.models.resnet101(pretrained=False)
+    elif args.resnet_size == 'resnet152':
+        model = torchvision.models.resnet152(pretrained=False)
+    else:
+        print('Unsupported ResNet model')
+        quit()
 
     # Define the ResNet50 model
     model = torchvision.models.resnet50(pretrained=False)
 
     # Change the output layer to have 10 classes instead of 1000
     num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 10)
+    model.fc = nn.Linear(num_ftrs, len(np.unique(y_train)))
 
     # Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -85,8 +91,8 @@ def parse_args():
 
     parser.add_argument('--dataset', type=str, default=None,
                         help='Dataset to train NN on, one in ["MNIST", "CIFAR10", "ImageNet"]')
-    parser.add_argument('--resnet_size', type=int, default=None,
-                        help='Size for Resnet, one in [50, 101, 152]')
+    parser.add_argument('--resnet_size', type=str, default='resnet50',
+                        help='Size for Resnet, one in ["resnet50", "resnet101", "resnet152"]')
     parser.add_argument('--epochs', type=int, default=None,
                         help='Number of epochs to train the NN, if none it will based on pre-defined values')
     parser.add_argument('--out_dir', type=str, default=None,

@@ -40,6 +40,22 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 def main(args):
     (x_train, y_train), (x_test, y_test) = get_dataset(args.dataset)
 
+    num_classes = len(np.unique(y_train))
+    if args.resnet_size == "resnet50":
+        resnet = keras.applications.ResNet50(
+            include_top=False, weights=None, input_shape=(32, 32, 3), pooling="avg", classes=num_classes
+        )
+    elif args.resnet_size == "resnet101":
+        resnet = keras.applications.ResNet101(
+            include_top=False, weights=None, input_shape=(32, 32, 3), pooling="avg", classes=num_classes
+        )
+    elif args.resnet_size == "resnet152":
+        resnet = keras.applications.ResNet152(
+            include_top=False, weights=None, input_shape=(32, 32, 3), pooling="avg", classes=num_classes
+        )
+    else:
+        raise ValueError("Invalid ResNet model name")
+
     # Prepare the training dataset
     batch_size = 128
     train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
@@ -52,7 +68,6 @@ def main(args):
 
     # Define the ResNet50 model
     shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
-    num_classes = 10
     resnet50 = keras.applications.ResNet50(
         include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
     )
@@ -87,15 +102,16 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset', type=str, default=None,
-                        help='Dataset to train NN on, one in ["MNIST", "CIFAR10", "CIFAR100"]')
-    parser.add_argument('--resnet_size', type=int, default=None,
-                        help='Size for Resnet, one in [50, 101, 152]')
-    parser.add_argument('--epochs', type=int, default=None,
+                        help='Dataset to train NN on, one in ["MNIST", "CIFAR10", "ImageNet"]')
+    parser.add_argument('--resnet_size', type=str, default='resnet50',
+                        help='Size for Resnet, one in ["resnet50", "resnet101", "resnet152"]')
+    parser.add_argument('--epochs', type=int, default=10,
+                        help='Number of epochs to train the NN, if none it will based on pre-defined values')
+    parser.add_argument('--batch_size', type=int, default=32,
                         help='Number of epochs to train the NN, if none it will based on pre-defined values')
     parser.add_argument('--out_dir', type=str, default=None,
                         help='Path where to save trianing data')
     args = parser.parse_args()
-
     return args
 
 
