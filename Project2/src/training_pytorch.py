@@ -63,7 +63,7 @@ def main(args):
 
     # Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), learning_rate=0.001, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     # Train the model
     n_epochs = int(args.epochs)
@@ -110,8 +110,8 @@ def parse_args():
                         help='Number of epochs to train the NN, if not provided set to default')
     parser.add_argument('--batch_size', type=int, default=128,
                         help='Batch size, if not provided set to default')
-    parser.add_argument('--out_dir', type=str, default=None,
-                        help='Path where to save training data')
+    # parser.add_argument('--out_dir', type=str, default=None,
+    #                     help='Path where to save training data')
     args = parser.parse_args()
     return args
 

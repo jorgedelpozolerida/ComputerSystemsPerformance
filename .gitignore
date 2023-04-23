@@ -62,5 +62,7 @@ Project1/CMakeFiles/
 *-prefix/
 
 Project2/datain/
+venv*
+
 
 # End of https://www.toptal.com/developers/gitignore/api/cmake,c++
