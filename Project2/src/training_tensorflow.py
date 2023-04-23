@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 # -*-coding:utf-8 -*-
-""" {Short Description of Script}
+""" Script for training tensorflow Resnets
 
 
-{Long Description of Script}
 """
-__author__ = "Jorge del Pozo Lérida"
-__email__ =  "jorgedelpozolerida@gmail.com"
-__date__ =  "18/04/2023"
-
-
 
 import os
 import sys
@@ -39,14 +33,15 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 
 def main(args):
 
-    # Check for available GPU devices
-    physical_devices = tf.config.list_physical_devices('GPU')
-    print(physical_devices)
-    if len(physical_devices) > 0:
-        tf.config.experimental.set_memory_growth(physical_devices[0], True)
-        print('Using GPU:', tf.config.list_physical_devices('GPU'))
-    else:
-        print('Using CPU only')
+    # Handle device used
+    assert args.device in ['cpu', 'gpu'], "Please select only 'cpu' or 'gpu' as device"
+    if args.device == 'gpu':
+        physical_devices = tf.config.list_physical_devices('GPU') # get number of gpu
+        # check if GPU is available
+        if len(physical_devices) > 0:
+            tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        else:
+            raise ValueError("There is no gpu available, please use cpu")
 
     # Load the dataset
     (x_train, y_train), (x_test, y_test) = get_dataset(args.dataset)
@@ -73,7 +68,8 @@ def main(args):
     batch_size = int(args.batch_size)
     train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     train_dataset = (
-        train_dataset.shuffle(buffer_size=1024)
+        # train_dataset.shuffle(buffer_size=1024)
+        train_dataset
         .batch(batch_size)
         .map(lambda x, y: (x, y), num_parallel_calls=tf.data.AUTOTUNE)
         .prefetch(tf.data.AUTOTUNE)
@@ -120,6 +116,8 @@ def parse_args():
                         help='Batch size, if not provided set to default')
     parser.add_argument('--out_dir', type=str, default=None,
                         help='Path where to save training data')
+    parser.add_argument('--device', type=str, default='GPU',
+                        help='Device: cpu or gpu')
     args = parser.parse_args()
     return args
 

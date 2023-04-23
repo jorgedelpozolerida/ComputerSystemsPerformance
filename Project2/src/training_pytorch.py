@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*-coding:utf-8 -*-
-""" Script for training pytorch Resnet
+""" Script for training pytorch Resnets
 
 
 """
@@ -29,21 +29,28 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 
 def main(args):
 
-    # check if GPU is available
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
+    # Handle device used
+    assert args.device in ['cpu', 'gpu'], "Please select only 'cpu' or 'gpu' as device"
+    device_name = args.device
+    if args.device == 'gpu':
+        # check if GPU is available
+        if torch.cuda.is_available():
+            device_name = f"{device_name}:0"
+        else:
+            raise ValueError("There is no gpu available, please use cpu")
+    device = torch.device(device_name)
 
-    # load data
+    # Load data
     (x_train, y_train), _ = get_dataset(args.dataset)
 
-    # convert data to PyTorch tensors and create DataLoader
+    # Convert data to PyTorch tensors and create DataLoader
     batch_size = int(args.batch_size)
     data_tensor = torch.from_numpy(x_train).permute(0, 3, 1, 2).float()
     labels_tensor = torch.tensor(y_train, dtype=torch.long)
     train_set = torch.utils.data.TensorDataset(data_tensor, labels_tensor)
-    trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=False, num_workers=2)
 
-    # load ResNet model
+    # Load ResNet model
     if args.resnet_size == 'resnet50':
         model = torchvision.models.resnet50(pretrained=False)
     elif args.resnet_size == 'resnet101':
@@ -58,7 +65,7 @@ def main(args):
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, len(np.unique(y_train)))
 
-    # send model to GPU
+    # Send model to GPU(CPU)
     model.to(device)
 
     # Define the loss function and optimizer
@@ -110,6 +117,8 @@ def parse_args():
                         help='Number of epochs to train the NN, if not provided set to default')
     parser.add_argument('--batch_size', type=int, default=128,
                         help='Batch size, if not provided set to default')
+    parser.add_argument('--device', type=str, default='GPU',
+                        help='Device: cpu or gpu')
     # parser.add_argument('--out_dir', type=str, default=None,
     #                     help='Path where to save training data')
     args = parser.parse_args()
