@@ -16,7 +16,8 @@ import pandas as pd                                                             
 import matplotlib.pyplot as plt
 
 # constant which denotes where to cache the data
-SAVE_DIR = "../datain"
+THISFILE_PATH = os.path.abspath(__file__)
+DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
 
 def load_MNIST(save_dir, test_split=0.1):
     '''
@@ -67,8 +68,8 @@ def load_CIFAR100(save_dir, test_split=0.1):
 
 def get_dataset(dataset: str, test_split=0.1):
     if dataset == "MNIST":
-        return load_MNIST(SAVE_DIR, test_split)
+        return load_MNIST(DATAIN_PATH, test_split)
     elif dataset == "CIFAR10":
-        return load_CIFAR10(SAVE_DIR, test_split)
+        return load_CIFAR10(DATAIN_PATH, test_split)
     elif dataset == "CIFAR100":
-        return load_CIFAR100(SAVE_DIR, test_split)
+        return load_CIFAR100(DATAIN_PATH, test_split)

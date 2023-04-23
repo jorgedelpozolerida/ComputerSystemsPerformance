@@ -38,20 +38,33 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 # - train NN
 
 def main(args):
+
+    # Check for available GPU devices
+    physical_devices = tf.config.list_physical_devices('GPU')
+    print(physical_devices)
+    if len(physical_devices) > 0:
+        tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        print('Using GPU:', tf.config.list_physical_devices('GPU'))
+    else:
+        print('Using CPU only')
+
+    # Load the dataset
     (x_train, y_train), (x_test, y_test) = get_dataset(args.dataset)
 
     num_classes = len(np.unique(y_train))
+    # Define the ResNet50 model
+    shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])    
     if args.resnet_size == "resnet50":
         resnet = keras.applications.ResNet50(
-            include_top=False, weights=None, input_shape=(32, 32, 3), pooling="avg", classes=num_classes
+            include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
         )
     elif args.resnet_size == "resnet101":
         resnet = keras.applications.ResNet101(
-            include_top=False, weights=None, input_shape=(32, 32, 3), pooling="avg", classes=num_classes
+            include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
         )
     elif args.resnet_size == "resnet152":
         resnet = keras.applications.ResNet152(
-            include_top=False, weights=None, input_shape=(32, 32, 3), pooling="avg", classes=num_classes
+            include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
         )
     else:
         raise ValueError("Invalid ResNet model name")
@@ -66,13 +79,8 @@ def main(args):
         .prefetch(tf.data.AUTOTUNE)
     )
 
-    # Define the ResNet50 model
-    shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])
-    resnet50 = keras.applications.ResNet50(
-        include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
-    )
     inputs = keras.Input(shape=shape)
-    x = resnet50(inputs, training=True)
+    x = resnet(inputs, training=True)
     outputs = layers.Dense(num_classes, activation="softmax")(x)
     model = keras.Model(inputs, outputs)
 
@@ -94,6 +102,7 @@ def main(args):
                 print("Training loss at step {}: {:.4f}".format(step, loss_value))
 
     print('Finished Training')
+
 
 def parse_args():
     '''
