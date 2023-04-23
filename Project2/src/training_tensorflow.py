@@ -70,7 +70,7 @@ def main(args):
         raise ValueError("Invalid ResNet model name")
 
     # Prepare the training dataset
-    batch_size = 128
+    batch_size = int(args.batch_size)
     train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     train_dataset = (
         train_dataset.shuffle(buffer_size=1024)
@@ -89,9 +89,9 @@ def main(args):
     optimizer = keras.optimizers.SGD(lr=0.001, momentum=0.9)
 
     # Train the model
-    epochs = 10
-    for epoch in range(epochs):
-        print("Epoch {}/{}".format(epoch + 1, epochs))
+    n_epochs = int(args.epochs)
+    for epoch in range(n_epochs):
+        print("Epoch {}/{}".format(epoch + 1, n_epochs))
         for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
             with tf.GradientTape() as tape:
                 logits = model(x_batch_train, training=True)
@@ -111,15 +111,15 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset', type=str, default=None,
-                        help='Dataset to train NN on, one in ["MNIST", "CIFAR10", "ImageNet"]')
+                        help='Dataset to train NN on, one in ["MNIST", "CIFAR10", "CIFAR100"]')
     parser.add_argument('--resnet_size', type=str, default='resnet50',
                         help='Size for Resnet, one in ["resnet50", "resnet101", "resnet152"]')
     parser.add_argument('--epochs', type=int, default=10,
-                        help='Number of epochs to train the NN, if none it will based on pre-defined values')
-    parser.add_argument('--batch_size', type=int, default=32,
-                        help='Number of epochs to train the NN, if none it will based on pre-defined values')
+                        help='Number of epochs to train the NN, if not provided set to default')
+    parser.add_argument('--batch_size', type=int, default=128,
+                        help='Batch size, if not provided set to default')
     parser.add_argument('--out_dir', type=str, default=None,
-                        help='Path where to save trianing data')
+                        help='Path where to save training data')
     args = parser.parse_args()
     return args
 

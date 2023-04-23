@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 # constant which denotes where to cache the data
 THISFILE_PATH = os.path.abspath(__file__)
-DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
+DATAOUT_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'dataout')
 
 def load_MNIST(save_dir, test_split=0.1):
     '''
@@ -66,10 +66,10 @@ def load_CIFAR100(save_dir, test_split=0.1):
 
     return (data_train, labels_train), (data_test, labels_test)
 
-def get_dataset(dataset: str, test_split=0.1):
+def get_dataset(dataset: str, test_split=0.1, savedir=DATAOUT_PATH):
     if dataset == "MNIST":
-        return load_MNIST(DATAIN_PATH, test_split)
+        return load_MNIST(savedir, test_split)
     elif dataset == "CIFAR10":
-        return load_CIFAR10(DATAIN_PATH, test_split)
+        return load_CIFAR10(savedir, test_split)
     elif dataset == "CIFAR100":
-        return load_CIFAR100(DATAIN_PATH, test_split)
+        return load_CIFAR100(savedir, test_split)
