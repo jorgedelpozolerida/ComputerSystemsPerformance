@@ -110,7 +110,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset', type=str, default=None,
-                        help='Dataset to train NN on, one in ["MNIST", "CIFAR10", "CIFAR100"]')
+                        help='Dataset to train NN on, one in ["SVHN", "CIFAR10", "CIFAR100"]')
     parser.add_argument('--resnet_size', type=str, default='resnet50',
                         help='Size for Resnet, one in ["resnet50", "resnet101", "resnet152"]')
     parser.add_argument('--epochs', type=int, default=10,

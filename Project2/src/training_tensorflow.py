@@ -47,8 +47,9 @@ def main(args):
     (x_train, y_train), (x_test, y_test) = get_dataset(args.dataset)
 
     num_classes = len(np.unique(y_train))
-    # Define the ResNet50 model
-    shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])    
+    
+    # Define ResNet
+    shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])      
     if args.resnet_size == "resnet50":
         resnet = keras.applications.ResNet50(
             include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
@@ -107,7 +108,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--dataset', type=str, default=None,
-                        help='Dataset to train NN on, one in ["MNIST", "CIFAR10", "CIFAR100"]')
+                        help='Dataset to train NN on, one in ["SVHN", "CIFAR10", "CIFAR100"]')
     parser.add_argument('--resnet_size', type=str, default='resnet50',
                         help='Size for Resnet, one in ["resnet50", "resnet101", "resnet152"]')
     parser.add_argument('--epochs', type=int, default=10,
