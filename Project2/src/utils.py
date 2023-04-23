@@ -14,6 +14,7 @@ import logging                                                                  
 import numpy as np                                                                  # NOQA E402
 import pandas as pd                                                                 # NOQA E402
 import matplotlib.pyplot as plt
+import datetime
 
 # constant which denotes where to cache the data
 THISFILE_PATH = os.path.abspath(__file__)
@@ -105,3 +106,11 @@ def get_dataset(dataset: str, test_split=0.1, savedir=DATAIN_PATH):
 # ------------ Data saving ---------------
 ###########################################
 
+
+def get_modeloutputdata(epoch, step, loss_value):
+    '''
+    Returns a formated row to be added to csv
+    '''
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    return f"{epoch};{step};{loss_value};{timestamp}"

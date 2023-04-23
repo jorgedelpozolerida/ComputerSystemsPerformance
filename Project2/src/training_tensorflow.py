@@ -6,9 +6,10 @@
 """
 
 import os
+import io
 import sys
 import argparse
-from utils import get_dataset
+from utils import get_dataset, get_modeloutputdata
 
 import tensorflow as tf
 
@@ -27,12 +28,13 @@ _logger = logging.getLogger(__name__)
 THISFILE_PATH = os.path.abspath(__file__)
 DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
 
-# TODO:
-# - check that dataset to be used exists
-# - train NN
 
 def main(args):
 
+    # Get all prints before training away
+    output_buffer = io.StringIO()
+    sys.stdout = output_buffer
+    
     # Handle device used
     assert args.device in ['cpu', 'gpu'], "Please select only 'cpu' or 'gpu' as device"
     if args.device == 'gpu':
@@ -85,10 +87,14 @@ def main(args):
     loss_fn = keras.losses.SparseCategoricalCrossentropy()
     optimizer = keras.optimizers.SGD(lr=0.001, momentum=0.9)
 
+    # Reset stdout to its original value
+    sys.stdout = sys.__stdout__
+    
     # Train the model
     n_epochs = int(args.epochs)
+    print("epoch;step;loss_value;timestamp")
     for epoch in range(n_epochs):
-        print("Epoch {}/{}".format(epoch + 1, n_epochs))
+        # print("Epoch {}/{}".format(epoch + 1, n_epochs))
         for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
             with tf.GradientTape() as tape:
                 logits = model(x_batch_train, training=True)
@@ -96,9 +102,11 @@ def main(args):
             grads = tape.gradient(loss_value, model.trainable_weights)
             optimizer.apply_gradients(zip(grads, model.trainable_weights))
             if step % 100 == 0:
-                print("Training loss at step {}: {:.4f}".format(step, loss_value))
+                # print("Training loss at step {}: {:.4f}".format(step, loss_value))
+                print(get_modeloutputdata(epoch, step+1, loss_value))
 
-    print('Finished Training')
+
+    # print('Finished Training')
 
 
 def parse_args():
@@ -115,8 +123,8 @@ def parse_args():
                         help='Number of epochs to train the NN, if not provided set to default')
     parser.add_argument('--batch_size', type=int, default=128,
                         help='Batch size, if not provided set to default')
-    parser.add_argument('--out_dir', type=str, default=None,
-                        help='Path where to save training data')
+    # parser.add_argument('--out_dir', type=str, default=None,
+    #                     help='Path where to save training data')
     parser.add_argument('--device', type=str, default='GPU',
                         help='Device: cpu or gpu')
     args = parser.parse_args()

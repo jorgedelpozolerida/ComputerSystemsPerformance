@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*-coding:utf-8 -*-
-""" Script that downloads preprocessed data ready to be used for training
+""" Script that downloads z
 
 
 It downloads all datasets and:

@@ -6,9 +6,10 @@
 """
 
 import os
+import io
 import sys
 import argparse
-from utils import get_dataset
+from utils import get_dataset, get_modeloutputdata
 
 import logging                                                                      # NOQA E402
 import numpy as np                                                                  # NOQA E402
@@ -29,6 +30,10 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 
 def main(args):
 
+    # Get all prints before training away
+    output_buffer = io.StringIO()
+    sys.stdout = output_buffer
+    
     # Handle device used
     assert args.device in ['cpu', 'gpu'], "Please select only 'cpu' or 'gpu' as device"
     device_name = args.device
@@ -71,13 +76,16 @@ def main(args):
     # Define the loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    
+    # Reset stdout to its original value
+    sys.stdout = sys.__stdout__
 
     # Train the model
     n_epochs = int(args.epochs)
-     
+    print("epoch;step;loss_value;timestamp")
     for epoch in range(n_epochs):  # number of epochs
         running_loss = 0.0
-        for i, data in enumerate(trainloader, 0):
+        for step, data in enumerate(trainloader, 0):
             # Get the inputs and labels
             inputs, labels = data
 
@@ -95,12 +103,13 @@ def main(args):
 
             # Print statistics
             running_loss += loss.item()
-            if i % 100 == 99:    # print every 100 mini-batches
-                print('[%d, %5d] loss: %.3f' %
-                    (epoch + 1, i + 1, running_loss / 100))
+            if step % 100 == 99:    # print every 100 mini-batches
+                # print('[%d, %5d] loss: %.3f' %
+                #     (epoch + 1, step + 1, running_loss / 100))
+                print(get_modeloutputdata(epoch, step, loss_value= (running_loss / 100)))
                 running_loss = 0.0
 
-    print('Finished Training')
+    # print('Finished Training')
 
 
 def parse_args():
