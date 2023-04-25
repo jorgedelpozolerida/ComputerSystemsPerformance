@@ -12,9 +12,6 @@ import argparse
 from utils import get_dataset, get_modeloutputdata
 
 import tensorflow as tf
-
-from tensorflow import keras
-
 from tensorflow.keras import layers
 
 import logging                                                                      # NOQA E402
@@ -51,17 +48,17 @@ def main(args):
     num_classes = len(np.unique(y_train))
     
     # Define ResNet
-    shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])      
+    shape = (x_train.shape[1], x_train.shape[2], x_train.shape[3])    
     if args.resnet_size == "resnet50":
-        resnet = keras.applications.ResNet50(
+        resnet = tf.keras.applications.ResNet50(
             include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
         )
     elif args.resnet_size == "resnet101":
-        resnet = keras.applications.ResNet101(
+        resnet = tf.keras.applications.ResNet101(
             include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
         )
     elif args.resnet_size == "resnet152":
-        resnet = keras.applications.ResNet152(
+        resnet = tf.keras.applications.ResNet152(
             include_top=False, weights=None, input_shape=shape, pooling="avg", classes=num_classes
         )
     else:
@@ -78,14 +75,14 @@ def main(args):
         .prefetch(tf.data.AUTOTUNE)
     )
 
-    inputs = keras.Input(shape=shape)
+    inputs = tf.keras.Input(shape=shape)
     x = resnet(inputs, training=True)
     outputs = layers.Dense(num_classes, activation="softmax")(x)
-    model = keras.Model(inputs, outputs)
+    model = tf.keras.Model(inputs, outputs)
 
     # Define the loss function and optimizer
-    loss_fn = keras.losses.SparseCategoricalCrossentropy()
-    optimizer = keras.optimizers.SGD(lr=0.001, momentum=0.9)
+    loss_fn = tf.keras.losses.SparseCategoricalCrossentropy()
+    optimizer = tf.keras.optimizers.SGD(lr=0.001, momentum=0.9)
 
     # Reset stdout to its original value
     sys.stdout = sys.__stdout__
