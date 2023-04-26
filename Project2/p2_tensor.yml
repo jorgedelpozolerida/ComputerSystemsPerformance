@@ -47,7 +47,6 @@ dependencies:
   - grpcio=1.42.0
   - h5py=3.7.0
   - hdf5=1.10.6
-  - icc_rt=2022.1.0
   - icu=68.1
   - idna=3.4
   - importlib-metadata=6.0.0
@@ -102,7 +101,6 @@ dependencies:
   - pyopenssl=23.0.0
   - pyparsing=3.0.9
   - pyqt=5.12.3
-  - pyreadline=2.1
   - pysocks=1.7.1
   - python=3.8.0
   - python-dateutil=2.8.2
