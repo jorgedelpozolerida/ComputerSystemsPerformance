@@ -1,6 +1,7 @@
 name: p2_tensor
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - keras-preprocessing==1.1.2=pyhd3eb1b0_0
   - freetype==2.12.1=ha860e81_0

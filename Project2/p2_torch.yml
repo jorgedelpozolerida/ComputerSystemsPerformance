@@ -1,6 +1,7 @@
 name: p2_torch
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - cuda-nvrtc==11.8.89=0
   - libnvjpeg-dev==11.9.0.86=0
