@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#SBATCH --job-name=ivas-gpu-training    # Job name
+#SBATCH --output=job.%j.out      # Name of output file (%j expands to jobId)
+#SBATCH --cpus-per-task=8
+#SBATCH --gres=gpu               # Schedule a GPU
+#SBATCH --time=01:00:00          # Run time (hh:mm:ss) - run for one hour max
+#SBATCH --partition=brown    # Run on either the Red or Brown queue
+
+module load Anaconda3/2021.05
+source activate p2_tensor
+
+nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
+serverPID=$!
+python ./src/training_tensorflow.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 > "./experiments/gpu/tensorflow/test_py.csv"
+kill $serverPID

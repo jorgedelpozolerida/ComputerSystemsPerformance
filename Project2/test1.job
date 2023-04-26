@@ -8,9 +8,9 @@
 #SBATCH --partition=red,brown    # Run on either the Red or Brown queue
 
 module load Anaconda3/2021.05
-source activate examplecondaenvname
+source activate p2_torch
 
-nvidia-smi --query-gpu=power.draw,temperature.gpu,memory.used --format=csv --loop-ms=5000 > ./experiments/pytorch/experiment-test.csv &
-serverPID=$!
-python ./src/training_pytorch.py --dataset=CIFAR10 --resnet_size="resnet50"
-kill serverPID
+nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/pytorch/test.csv" &
+serverPID=$! 
+python ./src/training_pytorch.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 > "./experiments/gpu/pytorch/test_py.csv"
+kill $serverPID
