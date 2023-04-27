@@ -16,7 +16,7 @@ from tensorflow.keras import layers
 
 import logging                                                                      # NOQA E402
 import numpy as np                                                                  # NOQA E402
-import pandas as pd                                                                 # NOQA E402
+
 
 
 logging.basicConfig(level=logging.INFO)
@@ -28,9 +28,18 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 
 def main(args):
 
+    # Print the parsed arguments
+    print(f"Framework: Tensorflow")
+    print(f"Dataset: {args.dataset}")
+    print(f"Resnet size: {args.resnet_size}")
+    # print(f"Epochs: {args.epochs}")
+    # print(f"Batch size: {args.batch_size}")
+    # print(f"Output directory: {args.out_dir}")
+    print("")
+
     # Get all prints before training away
-    output_buffer = io.StringIO()
-    sys.stdout = output_buffer
+    # output_buffer = io.StringIO()
+    # sys.stdout = output_buffer
     
     # Handle device used
     assert args.device in ['cpu', 'gpu'], "Please select only 'cpu' or 'gpu' as device"
@@ -39,6 +48,7 @@ def main(args):
         # check if GPU is available
         if len(physical_devices) > 0:
             tf.config.experimental.set_memory_growth(physical_devices[0], True)
+            print("GPU: ",physical_devices)
         else:
             raise ValueError("There is no gpu available, please use cpu")
 

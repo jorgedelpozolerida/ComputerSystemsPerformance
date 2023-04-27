@@ -31,7 +31,7 @@ do
                 do
                     for run in "${experiment_runs[@]}"
                     do
-                        count++
+                        count=$count+1
                         echo "------------------- ITERATION: ${count} -----------------------"
                         echo "Running the following iteration: run-${run}_device-${device}_epoch-${epoch}_batchsize-${batch_size}_framework-${framework}_dataset-${dataset}_model-${model}"
 
