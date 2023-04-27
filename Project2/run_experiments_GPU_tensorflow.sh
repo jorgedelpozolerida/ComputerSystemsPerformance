@@ -31,7 +31,7 @@ do
                 do
                     for run in "${experiment_runs[@]}"
                     do
-                        count++
+                        count=$((count+1))
                         echo "------------------- ITERATION: ${count} -----------------------"
                         echo "Running the following iteration: run-${run}_device-${device}_epoch-${epoch}_batchsize-${batch_size}_framework-${framework}_dataset-${dataset}_model-${model}"
 
@@ -39,11 +39,10 @@ do
                         echo  "Timestamp: ${timestamp}"
 
                         filename_energy="run-${run}_device-${device}_epoch-${epoch}_batchsize-${batch_size}_framework-${framework}_dataset-${dataset}_model-${model}_ENERGY"
-                        filename_python="run-${run}_device-${device}_epoch-${epoch}_batchsize-${batch_size}_framework-${framework}_dataset-${dataset}_model-${model}_MODEL"
 
                         nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/${device}/${framework}/${filename_energy}.csv" & 
                         serverPID=$!
-                        python ./src/training_tensorflow.py --dataset "${dataset}" --resnet_size "${model}" --device "${device}" --batch_size "${batch_size}" --epochs "${epoch}" > "./experiments/${device}/${framework}/${filename_python}.csv"
+                        python ./src/training_tensorflow.py --dataset "${dataset}" --resnet_size "${model}" --device "${device}" --batch_size "${batch_size}" --epochs "${epoch}" --run "${run}"
                         kill $serverPID
                         sleep 2
                     done

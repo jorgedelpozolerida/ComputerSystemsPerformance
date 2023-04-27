@@ -9,7 +9,7 @@ import os
 import io
 import sys
 import argparse
-from utils import get_dataset, get_modeloutputdata
+from utils import get_dataset, get_modeloutputdata, write_to_file
 
 import tensorflow as tf
 from tensorflow.keras import layers
@@ -24,9 +24,11 @@ _logger = logging.getLogger(__name__)
 
 THISFILE_PATH = os.path.abspath(__file__)
 DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
-
+EXPORT_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)))
 
 def main(args):
+    file_name  = f"run-${args.run}_device-${args.device}_epoch-${args.epoch}_batchsize-${args.batch_size}_framework-${args.framework}_dataset-${args.dataset}_model-${args.model}_MODEL.csv"
+    csv_path = EXPORT_PATH = os.path.join(EXPORT_PATH, 'experiments', args.device, 'tensorflow', file_name)
 
     # Print the parsed arguments
     print(f"Framework: Tensorflow")
@@ -99,7 +101,7 @@ def main(args):
     
     # Train the model
     n_epochs = int(args.epochs)
-    print("epoch;step;loss_value;timestamp")
+    write_to_file("epoch;step;loss_value;timestamp", csv_path)
     for epoch in range(n_epochs):
         # print("Epoch {}/{}".format(epoch + 1, n_epochs))
         for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
@@ -110,10 +112,10 @@ def main(args):
             optimizer.apply_gradients(zip(grads, model.trainable_weights))
             if step % 100 == 0:
                 # print("Training loss at step {}: {:.4f}".format(step, loss_value))
-                print(get_modeloutputdata(epoch, step+1, loss_value))
+                write_to_file(get_modeloutputdata(epoch, step+1, loss_value), csv_path)
 
 
-    # print('Finished Training')
+    print('Finished Training')
 
 
 def parse_args():
@@ -130,10 +132,10 @@ def parse_args():
                         help='Number of epochs to train the NN, if not provided set to default')
     parser.add_argument('--batch_size', type=int, default=128,
                         help='Batch size, if not provided set to default')
-    # parser.add_argument('--out_dir', type=str, default=None,
-    #                     help='Path where to save training data')
     parser.add_argument('--device', type=str, default='GPU',
                         help='Device: cpu or gpu')
+    parser.add_argument('--run', type=int, default=0,
+                        help='# of experiment')
     args = parser.parse_args()
     return args
 

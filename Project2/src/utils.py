@@ -109,3 +109,7 @@ def get_modeloutputdata(epoch, step, loss_value):
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     return f"{epoch};{step};{loss_value};{timestamp}"
+
+def write_to_file(data: str, path: str):
+    with open(path, "a+") as file:
+        file.write(data)

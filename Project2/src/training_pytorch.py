@@ -9,10 +9,8 @@ import os
 import io
 import sys
 import argparse
-from utils import get_dataset, get_modeloutputdata
-
-import logging                                                                      # NOQA E402
-import numpy as np                                                                  # NOQA E402
+from utils import get_dataset, get_modeloutputdata, write_to_file
+import numpy as np
 
 
 import torch
@@ -21,21 +19,21 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 
-logging.basicConfig(level=logging.INFO)
-_logger = logging.getLogger(__name__)
-
 THISFILE_PATH = os.path.abspath(__file__)
 DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
+EXPORT_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)))
 
 def main(args):
-    
+    file_name  = f"run-${args.run}_device-${args.device}_epoch-${args.epoch}_batchsize-${args.batch_size}_framework-${args.framework}_dataset-${args.dataset}_model-${args.model}_MODEL.csv"
+    csv_path = EXPORT_PATH = os.path.join(EXPORT_PATH, 'experiments', args.device, 'pytorch', file_name)
+
     # Print the parsed arguments
     print(f"Framework: Pytorch")
     print(f"Dataset: {args.dataset}")
     print(f"Resnet size: {args.resnet_size}")
-    # print(f"Epochs: {args.epochs}")
-    # print(f"Batch size: {args.batch_size}")
-    # print(f"Output directory: {args.out_dir}")
+    print(f"Epochs: {args.epochs}")
+    print(f"Batch size: {args.batch_size}")
+    print(f"Output directory: {args.out_dir}")
     print("")
 
     # Get all prints before training away
@@ -93,7 +91,7 @@ def main(args):
 
     # Train the model
     n_epochs = int(args.epochs)
-    print("epoch;step;loss_value;timestamp")
+    write_to_file("epoch;step;loss_value;timestamp", csv_path)
     for epoch in range(n_epochs):  # number of epochs
         running_loss = 0.0
         for step, data in enumerate(trainloader, 0):
@@ -117,7 +115,7 @@ def main(args):
             if step % 100 == 99:    # print every 100 mini-batches
                 print('[%d, %5d] loss: %.3f' %
                     (epoch + 1, step + 1, running_loss / 100))
-                print(get_modeloutputdata(epoch, step, loss_value= (running_loss / 100)))
+                write_to_file(get_modeloutputdata(epoch, step, loss_value= (running_loss / 100)), csv_path)
                 running_loss = 0.0
 
     print('Finished Training')
@@ -139,8 +137,8 @@ def parse_args():
                         help='Batch size, if not provided set to default')
     parser.add_argument('--device', type=str, default='GPU',
                         help='Device: cpu or gpu')
-    # parser.add_argument('--out_dir', type=str, default=None,
-    #                     help='Path where to save training data')
+    parser.add_argument('--run', type=int, default=0,
+                        help='# of experiment')
     args = parser.parse_args()
     return args
 
