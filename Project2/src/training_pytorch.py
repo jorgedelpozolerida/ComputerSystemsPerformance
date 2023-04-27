@@ -13,8 +13,7 @@ from utils import get_dataset, get_modeloutputdata
 
 import logging                                                                      # NOQA E402
 import numpy as np                                                                  # NOQA E402
-import pandas as pd                                                                 # NOQA E402
-import utils
+
 
 import torch
 import torch.nn as nn
@@ -29,6 +28,15 @@ THISFILE_PATH = os.path.abspath(__file__)
 DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
 
 def main(args):
+    
+    # Print the parsed arguments
+    print(f"Framework: Pytorch")
+    print(f"Dataset: {args.dataset}")
+    print(f"Resnet size: {args.resnet_size}")
+    # print(f"Epochs: {args.epochs}")
+    # print(f"Batch size: {args.batch_size}")
+    # print(f"Output directory: {args.out_dir}")
+    print("")
 
     # Get all prints before training away
     output_buffer = io.StringIO()
@@ -40,9 +48,12 @@ def main(args):
     if args.device == 'gpu':
         # check if GPU is available
         if torch.cuda.is_available():
-            device_name = f"{device_name}:0"
+            device_name = "cuda:0" 
+            print("GPU: ",device_name)
         else:
             raise ValueError("There is no gpu available, please use cpu")
+        
+    print(device_name)
     device = torch.device(device_name)
 
     # Load data
@@ -57,11 +68,11 @@ def main(args):
 
     # Load ResNet model
     if args.resnet_size == 'resnet50':
-        model = torchvision.models.resnet50(pretrained=False)
+        model = torchvision.models.resnet50(weights=None)
     elif args.resnet_size == 'resnet101':
-        model = torchvision.models.resnet101(pretrained=False)
+        model = torchvision.models.resnet101(weights=None)
     elif args.resnet_size == 'resnet152':
-        model = torchvision.models.resnet152(pretrained=False)
+        model = torchvision.models.resnet152(weights=None)
     else:
         print('Unsupported ResNet model')
         quit()
@@ -104,12 +115,12 @@ def main(args):
             # Print statistics
             running_loss += loss.item()
             if step % 100 == 99:    # print every 100 mini-batches
-                # print('[%d, %5d] loss: %.3f' %
-                #     (epoch + 1, step + 1, running_loss / 100))
+                print('[%d, %5d] loss: %.3f' %
+                    (epoch + 1, step + 1, running_loss / 100))
                 print(get_modeloutputdata(epoch, step, loss_value= (running_loss / 100)))
                 running_loss = 0.0
 
-    # print('Finished Training')
+    print('Finished Training')
 
 
 def parse_args():

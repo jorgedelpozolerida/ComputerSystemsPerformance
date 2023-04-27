@@ -5,15 +5,10 @@ Script with functions to be used across files
 """
 
 import os
-import sys
-import argparse
 
 from torchvision import datasets, transforms
 
-import logging                                                                      # NOQA E402
 import numpy as np                                                                  # NOQA E402
-import pandas as pd                                                                 # NOQA E402
-import matplotlib.pyplot as plt
 import datetime
 
 # constant which denotes where to cache the data
