@@ -33,7 +33,7 @@ def main(args):
     print(f"Resnet size: {args.resnet_size}")
     print(f"Epochs: {args.epochs}")
     print(f"Batch size: {args.batch_size}")
-    print(f"Output directory: {args.out_dir}")
+    # print(f"Output directory: {args.out_dir}")
     print("")
 
     # Get all prints before training away
