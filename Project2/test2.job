@@ -8,11 +8,16 @@
 #SBATCH --partition=brown
 #SBATCH --mail-type=FAIL,END
 
-module load TensorFlow/2.0.0-fosscuda-2019b-Python-3.7.4
 module load Anaconda3
+module load cuDNN/7.6.4.38-gcccuda-2019b
+module load CUDA/11.0.2-GCC-9.3.0
+module load TensorFlow/2.3.1-fosscuda-2020a-Python-3.8.2
+module load typing-extensions/3.7.4.3-GCCcore-9.3.0-Python-3.8.2
 source activate p2_torch
 
-nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
-serverPID=$!
+pip install sympy Pillow numpy=1.22 tensorflow
+
+#nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
+#serverPID=$!
 python ./src/training_tensorflow.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 --run=0
-kill $serverPID
+#kill $serverPID
