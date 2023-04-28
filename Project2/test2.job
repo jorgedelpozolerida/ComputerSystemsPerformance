@@ -8,7 +8,7 @@
 #SBATCH --partition=brown
 #SBATCH --mail-type=FAIL,END
 
-module load Anaconda3/2021.05
+module load Anaconda3
 source activate p2_tensor
 
 nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 

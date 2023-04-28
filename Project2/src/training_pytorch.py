@@ -24,8 +24,11 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 EXPORT_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)))
 
 def main(args):
-    file_name  = f"run-${args.run}_device-${args.device}_epoch-${args.epochs}_batchsize-${args.batch_size}_framework-pytorch_dataset-${args.dataset}_model-${args.resnet_size}_MODEL.csv"
+    file_name  = f"run-{args.run}_device-{args.device}_epoch-{args.epochs}_batchsize-{args.batch_size}_framework-pytorch_dataset-{args.dataset}_model-{args.resnet_size}_MODEL.csv"
     csv_path = os.path.join(EXPORT_PATH, 'experiments', args.device, 'pytorch', file_name)
+
+    print(csv_path)
+    write_to_file("epoch;step;loss_value;timestamp", csv_path)
 
     # Print the parsed arguments
     print(f"Framework: Pytorch")
@@ -135,7 +138,7 @@ def parse_args():
                         help='Number of epochs to train the NN, if not provided set to default')
     parser.add_argument('--batch_size', type=int, default=128,
                         help='Batch size, if not provided set to default')
-    parser.add_argument('--device', type=str, default='GPU',
+    parser.add_argument('--device', type=str, default='gpu',
                         help='Device: cpu or gpu')
     parser.add_argument('--run', type=int, default=0,
                         help='# of experiment')

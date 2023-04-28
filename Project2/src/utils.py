@@ -112,4 +112,4 @@ def get_modeloutputdata(epoch, step, loss_value):
 
 def write_to_file(data: str, path: str):
     with open(path, "a+") as file:
-        file.write(data)
+        file.write(data+"\n")
