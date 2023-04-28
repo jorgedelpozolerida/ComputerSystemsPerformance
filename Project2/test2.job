@@ -8,6 +8,7 @@
 #SBATCH --partition=brown
 #SBATCH --mail-type=FAIL,END
 
+module load TensorFlow/2.3.1-fosscuda-2020a-Python-3.8.2
 module load Anaconda3
 source activate p2_torch
 
