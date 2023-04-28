@@ -1,8 +1,15 @@
 #!/bin/bash
 
+#SBATCH --job-name=pytorch-test
+#SBATCH --output=job.%j.out
+#SBATCH --cpus-per-task=16
+#SBATCH --gres=gpu
+#SBATCH --time=71:00:00
+#SBATCH --partition=brown
+#SBATCH --mail-type=FAIL,END
 
-# TODO: add conda install blablab + conda activate here for TENSORFLOW
-
+module load Anaconda3
+source activate p2_tensor
 
 # variable 
 experiment_runs=(1 2)
