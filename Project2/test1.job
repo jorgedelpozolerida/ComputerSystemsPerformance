@@ -12,6 +12,6 @@ module load Anaconda3
 source activate p2_torch
 
 nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/pytorch/test.csv" &
-serverPID=$! 
-python ./src/training_pytorch.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 > "./experiments/gpu/pytorch/test_py.csv"
+serverPID=$!
+python ./src/training_pytorch.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 --run=0
 kill $serverPID
