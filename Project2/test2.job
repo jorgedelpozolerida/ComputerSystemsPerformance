@@ -9,7 +9,7 @@
 #SBATCH --mail-type=FAIL,END
 
 module load Anaconda3
-source activate p2_tensor
+source activate p2_torch
 
 nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
 serverPID=$!
