@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=tensorflow-test
+#SBATCH --job-name=pytorch-test
 #SBATCH --output=job.%j.out
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu
@@ -9,9 +9,9 @@
 #SBATCH --mail-type=FAIL,END
 
 module load Anaconda3
-source activate p2_tensor
+source activate p2_torch
 
 nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
 serverPID=$!
-python ./src/training_tensorflow.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 > "./experiments/gpu/tensorflow/test_py.csv"
+python ./src/training_tensorflow.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 --run=0
 kill $serverPID
