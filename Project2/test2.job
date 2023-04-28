@@ -12,6 +12,8 @@ module load TensorFlow/2.3.1-fosscuda-2020a-Python-3.8.2
 module load Anaconda3
 source activate p2_torch
 
+pip install numpy --upgrade
+
 nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
 serverPID=$!
 python ./src/training_tensorflow.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 --run=0
