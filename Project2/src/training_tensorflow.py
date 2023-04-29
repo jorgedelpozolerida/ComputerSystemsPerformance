@@ -26,6 +26,8 @@ THISFILE_PATH = os.path.abspath(__file__)
 DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
 EXPORT_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)))
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
 def main(args):
     file_name  = f"run-{args.run}_device-{args.device}_epoch-{args.epochs}_batchsize-{args.batch_size}_framework-tensorflow_dataset-{args.dataset}_model-{args.resnet_size}_MODEL.csv"
     csv_path = os.path.join(EXPORT_PATH, 'experiments', args.device, 'tensorflow', file_name)
@@ -52,6 +54,7 @@ def main(args):
             tf.config.experimental.set_memory_growth(physical_devices[0], True)
             print("GPU: ",physical_devices)
         else:
+            print(tf.config.list_physical_devices())
             raise ValueError("There is no gpu available, please use cpu")
 
     # Load the dataset
@@ -83,8 +86,8 @@ def main(args):
         # train_dataset.shuffle(buffer_size=1024)
         train_dataset
         .batch(batch_size)
-        .map(lambda x, y: (x, y), num_parallel_calls=tf.data.AUTOTUNE)
-        .prefetch(tf.data.AUTOTUNE)
+        .map(lambda x, y: (x, y), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        .prefetch(tf.data.experimental.AUTOTUNE)
     )
 
     inputs = tf.keras.Input(shape=shape)
