@@ -39,13 +39,14 @@ def main(args):
     # print(f"Epochs: {args.epochs}")
     # print(f"Batch size: {args.batch_size}")
     # print(f"Output directory: {args.out_dir}")
-    print("")
+    print("**************************************")
 
     # Get all prints before training away
     # output_buffer = io.StringIO()
     # sys.stdout = output_buffer
     
     # Handle device used
+    print(tf.config.list_physical_devices())
     assert args.device in ['cpu', 'gpu'], "Please select only 'cpu' or 'gpu' as device"
     if args.device == 'gpu':
         physical_devices = tf.config.list_physical_devices('GPU') # get number of gpu
