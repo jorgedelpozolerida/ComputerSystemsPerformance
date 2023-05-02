@@ -30,6 +30,11 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 tuple_map = lambda x, y: (x, y)
 
+
+class CustomCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        print(f"EPOCH {epoch}")
+
 def main(args):
     file_name  = f"run{args.run}-{args.device}-epoch{args.epochs}-batchsize{args.batch_size}-tensorflow-{args.dataset}-{args.resnet_size}_MODEL.csv"
     csv_path = os.path.join(EXPORT_PATH, 'experiments', args.device, 'tensorflow', file_name)
@@ -105,20 +110,24 @@ def main(args):
     # Reset stdout to its original value
     sys.stdout = sys.__stdout__
     
-    # Train the model
-    n_epochs = int(args.epochs)
-    write_to_file("epoch;step;loss_value;timestamp", csv_path)
-    for epoch in range(n_epochs):
-        # print("Epoch {}/{}".format(epoch + 1, n_epochs))
-        for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
-            with tf.GradientTape() as tape:
-                logits = model(x_batch_train, training=True)
-                loss_value = loss_fn(y_batch_train, logits)
-            grads = tape.gradient(loss_value, model.trainable_weights)
-            optimizer.apply_gradients(zip(grads, model.trainable_weights))
-            if step % 100 == 0:
-                # print("Training loss at step {}: {:.4f}".format(step, loss_value))
-                write_to_file(get_modeloutputdata(epoch, step+1, loss_value), csv_path)
+    # # Train the model
+    # n_epochs = int(args.epochs)
+    # write_to_file("epoch;step;loss_value;timestamp", csv_path)
+    # for epoch in range(n_epochs):
+    #     # print("Epoch {}/{}".format(epoch + 1, n_epochs))
+    #     for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
+    #         with tf.GradientTape() as tape:
+    #             logits = model(x_batch_train, training=True)
+    #             loss_value = loss_fn(y_batch_train, logits)
+    #         grads = tape.gradient(loss_value, model.trainable_weights)
+    #         optimizer.apply_gradients(zip(grads, model.trainable_weights))
+    #         if step % 100 == 0:
+    #             # print("Training loss at step {}: {:.4f}".format(step, loss_value))
+    #             write_to_file(get_modeloutputdata(epoch, step+1, loss_value), csv_path)
+
+    model.compile(optimizer=optimizer,loss=loss_fn)
+
+    model.fit(np.asarray(x_train), np.asarray(y_train), epochs=int(args.epochs), batch_size=batch_size, steps_per_epoch=100, callbacks=[CustomCallback()])
 
 
     print('Finished Training')
