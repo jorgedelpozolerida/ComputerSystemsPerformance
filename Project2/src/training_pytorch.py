@@ -94,7 +94,10 @@ def main(args):
 
     # Train the model
     n_epochs = int(args.epochs)
-    write_to_file("epoch;step;loss_value;timestamp", csv_path)
+
+    # create header for csv file
+    write_to_file("epoch;precision;recall;accuracy;f1;timestamp", csv_path)
+    
     for epoch in range(n_epochs):  # number of epochs
         running_loss = 0.0
         for step, data in enumerate(trainloader, 0):

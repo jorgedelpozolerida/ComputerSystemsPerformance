@@ -31,7 +31,13 @@ class CustomCallback(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         score = self.model.evaluate(self.test_x, self.test_y, verbose=0)
-        print(score)
+        write_to_file(get_modeloutputdata([
+            epoch,
+            score[0], # precision
+            score[1], # recall
+            score[2], # accuracy
+        ]), self.csv_path)
+        tf.print(score)
 
 def main(args):
     file_name  = f"run{args.run}-{args.device}-epoch{args.epochs}-batchsize{args.batch_size}-tensorflow-{args.dataset}-{args.resnet_size}_MODEL.csv"
@@ -59,8 +65,7 @@ def main(args):
             tf.config.experimental.set_memory_growth(physical_devices[0], True)
             print("GPU: ",physical_devices)
         else:
-            print(tf.config.list_physical_devices())
-            #raise ValueError("There is no gpu available, please use cpu")
+            raise ValueError("There is no gpu available, please use cpu")
 
     # Load the dataset
     (x_train, y_train), (x_test, y_test) = get_dataset(args.dataset)
@@ -99,14 +104,14 @@ def main(args):
     model.compile(
         optimizer=optimizer,
         loss=loss_fn,
-        metrics=[tf.keras_metrics.precision(), 
-                 tf.keras_metrics.recall(),
-                 tf.keras.metrics.Accuracy(),
-                 tf.keras.metrics.F1Score(average='macro')
+        metrics=[tf.keras.metrics.Precision(), 
+                 tf.keras.metrics.Recall(),
+                 tf.keras.metrics.Accuracy()
         ]
     )
 
-    #write_to_file("epoch;precision;recall;accuracy;f1;timestamp", csv_path)
+    # create header for csv file
+    write_to_file("epoch;precision;recall;accuracy;timestamp", csv_path)
     
     # start training
     model.fit(np.asarray(x_train), np.asarray(y_train), 
