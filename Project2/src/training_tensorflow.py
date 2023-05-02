@@ -29,7 +29,7 @@ EXPORT_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 def main(args):
-    file_name  = f"run-{args.run}_device-{args.device}_epoch-{args.epochs}_batchsize-{args.batch_size}_framework-tensorflow_dataset-{args.dataset}_model-{args.resnet_size}_MODEL.csv"
+    file_name  = f"run{args.run}-{args.device}-epoch{args.epochs}-batchsize{args.batch_size}-tensorflow-{args.dataset}-{args.resnet_size}_MODEL.csv"
     csv_path = os.path.join(EXPORT_PATH, 'experiments', args.device, 'tensorflow', file_name)
 
     # Print the parsed arguments

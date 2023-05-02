@@ -24,7 +24,7 @@ DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardi
 EXPORT_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)))
 
 def main(args):
-    file_name  = f"run-{args.run}_device-{args.device}_epoch-{args.epochs}_batchsize-{args.batch_size}_framework-pytorch_dataset-{args.dataset}_model-{args.resnet_size}_MODEL.csv"
+    file_name  = f"run{args.run}-{args.device}-epoch{args.epochs}-batchsize{args.batch_size}-pytorch-{args.dataset}-{args.resnet_size}_MODEL.csv"
     csv_path = os.path.join(EXPORT_PATH, 'experiments', args.device, 'pytorch', file_name)
 
     print(csv_path)
