@@ -47,7 +47,7 @@ do
 
                         filename_energy="run${run}-${device}-epoch${epoch}-batchsize${batch_size}-${framework}-${dataset}-${model}-ENERGY"
 
-                        nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/${device}/${framework}/${filename_energy}.csv" &
+                        nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used,utilization.gpu,utilization.memory --format=csv --loop-ms=1000 > "./experiments/${device}/${framework}/${filename_energy}.csv" &
                         serverPID=$! 
                         python ./src/training_pytorch.py --dataset "${dataset}" --resnet_size "${model}" --device "${device}" --batch_size "${batch_size}" --epochs "${epoch}" --run "${run}"
                         kill $serverPID

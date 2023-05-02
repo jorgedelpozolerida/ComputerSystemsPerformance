@@ -25,7 +25,7 @@ nvidia-smi
 
 echo "************* \n"
 
-nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
+nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used,utilization.gpu,utilization.memory --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
 serverPID=$!
 python ./src/training_tensorflow.py --dataset=SVHN --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 --run=-1
 kill $serverPID
