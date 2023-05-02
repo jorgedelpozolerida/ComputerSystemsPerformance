@@ -6,21 +6,12 @@
 """
 
 import os
-import io
-import sys
 import argparse
 from utils import get_dataset, get_modeloutputdata, write_to_file
 
 import tensorflow as tf
 from tensorflow.keras import layers
-
-import logging                                                                      # NOQA E402
-import numpy as np                                                                  # NOQA E402
-
-
-
-logging.basicConfig(level=logging.INFO)
-_logger = logging.getLogger(__name__)
+import numpy as np
 
 THISFILE_PATH = os.path.abspath(__file__)
 DATAIN_PATH = os.path.join( os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir)), 'datain')
@@ -32,8 +23,14 @@ tuple_map = lambda x, y: (x, y)
 
 
 class CustomCallback(tf.keras.callbacks.Callback):
+    def __init__(self, test_x, test_y):
+        super().__init__()
+        self.test_x = test_x
+        self.test_y = test_y
+
     def on_epoch_end(self, epoch, logs=None):
-        print(f"EPOCH {epoch}")
+        score = self.model.evaluate(self.test_x, self.test_y, verbose=0)
+        print(score)
 
 def main(args):
     file_name  = f"run{args.run}-{args.device}-epoch{args.epochs}-batchsize{args.batch_size}-tensorflow-{args.dataset}-{args.resnet_size}_MODEL.csv"
@@ -50,7 +47,6 @@ def main(args):
 
     # Get all prints before training away
     # output_buffer = io.StringIO()
-    # sys.stdout = output_buffer
     
     # Handle device used
     print(tf.config.list_physical_devices())
@@ -89,14 +85,6 @@ def main(args):
 
     # Prepare the training dataset
     batch_size = int(args.batch_size)
-    train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-    train_dataset = (
-        # train_dataset.shuffle(buffer_size=1024)
-        train_dataset
-        .batch(batch_size)
-        .map(tuple_map, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        .prefetch(tf.data.experimental.AUTOTUNE)
-    )
 
     inputs = tf.keras.Input(shape=shape)
     x = resnet(inputs, training=True)
@@ -107,27 +95,21 @@ def main(args):
     loss_fn = tf.keras.losses.SparseCategoricalCrossentropy()
     optimizer = tf.keras.optimizers.SGD(lr=0.001, momentum=0.9)
 
-    # Reset stdout to its original value
-    sys.stdout = sys.__stdout__
-    
-    # # Train the model
-    # n_epochs = int(args.epochs)
-    # write_to_file("epoch;step;loss_value;timestamp", csv_path)
-    # for epoch in range(n_epochs):
-    #     # print("Epoch {}/{}".format(epoch + 1, n_epochs))
-    #     for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
-    #         with tf.GradientTape() as tape:
-    #             logits = model(x_batch_train, training=True)
-    #             loss_value = loss_fn(y_batch_train, logits)
-    #         grads = tape.gradient(loss_value, model.trainable_weights)
-    #         optimizer.apply_gradients(zip(grads, model.trainable_weights))
-    #         if step % 100 == 0:
-    #             # print("Training loss at step {}: {:.4f}".format(step, loss_value))
-    #             write_to_file(get_modeloutputdata(epoch, step+1, loss_value), csv_path)
+    model.compile(
+        optimizer=optimizer,
+        loss=loss_fn,
+        metrics=[tf.keras_metrics.precision(), 
+                 tf.keras_metrics.recall(),
+                 tf.keras.metrics.Accuracy(),
+                 tf.keras.metrics.F1Score()
+        ]
+    )
 
-    model.compile(optimizer=optimizer,loss=loss_fn)
-
-    model.fit(np.asarray(x_train), np.asarray(y_train), epochs=int(args.epochs), batch_size=batch_size, steps_per_epoch=100, callbacks=[CustomCallback()])
+    model.fit(np.asarray(x_train), np.asarray(y_train), 
+              epochs=int(args.epochs), 
+              batch_size=batch_size, 
+              steps_per_epoch=100, 
+              callbacks=[CustomCallback(x_test, y_test)])
 
 
     print('Finished Training')
