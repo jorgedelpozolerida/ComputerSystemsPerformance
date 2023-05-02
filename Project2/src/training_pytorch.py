@@ -58,7 +58,7 @@ def main(args):
     device = torch.device(device_name)
 
     # Load data
-    (x_train, y_train), _ = get_dataset(args.dataset)
+    (x_train, y_train), (x_test, y_test) = get_dataset(args.dataset)
 
     # Convert data to PyTorch tensors and create DataLoader
     batch_size = int(args.batch_size)
@@ -118,8 +118,11 @@ def main(args):
             if step % 100 == 99:    # print every 100 mini-batches
                 print('[%d, %5d] loss: %.3f' %
                     (epoch + 1, step + 1, running_loss / 100))
-                write_to_file(get_modeloutputdata(epoch, step, loss_value= (running_loss / 100)), csv_path)
                 running_loss = 0.0
+        y_pred = model.predict(x_test)
+
+        # in the end of each epoch write model eval metrics
+        write_to_file(get_modeloutputdata(epoch, step, loss_value= (running_loss / 100)), csv_path)
 
     print('Finished Training')
 

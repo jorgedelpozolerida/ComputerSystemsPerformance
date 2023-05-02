@@ -23,10 +23,11 @@ tuple_map = lambda x, y: (x, y)
 
 
 class CustomCallback(tf.keras.callbacks.Callback):
-    def __init__(self, test_x, test_y):
+    def __init__(self, test_x, test_y, csv_path):
         super().__init__()
         self.test_x = test_x
         self.test_y = test_y
+        self.csv_path = csv_path
 
     def on_epoch_end(self, epoch, logs=None):
         score = self.model.evaluate(self.test_x, self.test_y, verbose=0)
@@ -101,15 +102,18 @@ def main(args):
         metrics=[tf.keras_metrics.precision(), 
                  tf.keras_metrics.recall(),
                  tf.keras.metrics.Accuracy(),
-                 tf.keras.metrics.F1Score()
+                 tf.keras.metrics.F1Score(average='macro')
         ]
     )
 
+    #write_to_file("epoch;precision;recall;accuracy;f1;timestamp", csv_path)
+    
+    # start training
     model.fit(np.asarray(x_train), np.asarray(y_train), 
               epochs=int(args.epochs), 
               batch_size=batch_size, 
               steps_per_epoch=100, 
-              callbacks=[CustomCallback(x_test, y_test)])
+              callbacks=[CustomCallback(x_test, y_test, csv_path)])
 
 
     print('Finished Training')

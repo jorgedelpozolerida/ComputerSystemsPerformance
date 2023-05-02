@@ -102,13 +102,17 @@ def get_dataset(dataset: str, test_split=0.1, savedir=DATAIN_PATH):
 ###########################################
 
 
-def get_modeloutputdata(epoch, step, loss_value):
+def get_modeloutputdata(values):
     '''
     Returns a formated row to be added to csv
     '''
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    return f"{epoch};{step};{loss_value};{timestamp}"
+    value_str = ""
+
+    for val in values:
+        value_str = value_str + f"{val};"
+
+    return f"{value_str};{timestamp}"
 
 def write_to_file(data: str, path: str):
     with open(path, "a+") as file:
