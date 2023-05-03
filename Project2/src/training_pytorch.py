@@ -9,9 +9,8 @@ import os
 import io
 import sys
 import argparse
-from utils import get_dataset, get_modeloutputdata, write_to_file
+from utils import get_dataset, get_modeloutputdata, write_to_file, generate_metrics
 import numpy as np
-from sklearn.metrics import accuracy_score, recall_score, precision_score
 
 import torch
 import torch.nn as nn
@@ -96,7 +95,7 @@ def main(args):
     n_epochs = int(args.epochs)
 
     # create header for csv file
-    write_to_file("epoch;precision;recall;accuracy;timestamp", csv_path)
+    write_to_file("epoch;precision;recall;accuracy;f1;timestamp", csv_path)
     
     for epoch in range(n_epochs):  # number of epochs
         running_loss = 0.0
@@ -123,12 +122,10 @@ def main(args):
                     (epoch + 1, step + 1, running_loss / 100))
                 running_loss = 0.0
         y_pred = model.predict(x_test)
-        acc = accuracy_score(y_test, y_pred)
-        recall = recall_score(y_test, y_pred)
-        percision = precision_score(y_test, y_pred)
+        (acc, recall, percision, f1) = generate_metrics(y_pred, y_test)
 
         # in the end of each epoch write model eval metrics
-        write_to_file(get_modeloutputdata([epoch,percision,recall,acc]), csv_path)
+        write_to_file(get_modeloutputdata([epoch,percision,recall,acc,f1]), csv_path)
 
     print('Finished Training')
 

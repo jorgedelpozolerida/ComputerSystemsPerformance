@@ -7,6 +7,7 @@ Script with functions to be used across files
 import os
 
 from torchvision import datasets, transforms
+from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 
 import numpy as np                                                                  # NOQA E402
 import datetime
@@ -117,3 +118,11 @@ def get_modeloutputdata(values):
 def write_to_file(data: str, path: str):
     with open(path, "a+") as file:
         file.write(data+"\n")
+
+def generate_metrics(y_pred, y_true):
+    acc = accuracy_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred, average='macro')
+    percision = precision_score(y_true, y_pred, average="macro")
+    f1 = f1_score(y_true, y_pred, average='macro')
+
+    return (acc, recall, percision, f1)
