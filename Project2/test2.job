@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH --job-name=pytorch-test
+#SBATCH --job-name=tensor-test
 #SBATCH --output=job.%j.out
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu
-#SBATCH --time=02:00:00
+#SBATCH --time=01:00:00
 #SBATCH --partition=brown
 #SBATCH --mail-type=FAIL,END
 
@@ -13,21 +13,22 @@ module load cuDNN/7.6.4.38-gcccuda-2019b
 module load CUDA/10.1.243-GCC-8.3.0
 module load fosscuda/2020a
 module load TensorFlow/2.3.1-fosscuda-2020a-Python-3.8.2
-
 module load typing-extensions/3.7.4.3-GCCcore-9.3.0-Python-3.8.2
 module load SciPy-bundle/2020.03-foss-2020a-Python-3.8.2
 
-source activate p2_tensor
-#pip install sympy Pillow tensorflow
+source activate p2_tensor_v2
 
 nvcc -V
 
 #python3 -c 'import numpy; print (numpy.version.version)'
 #python -c 'import numpy; print (numpy.version.version)'
 
-echo "************* \n"
+#python -c "import torchvision"
+#/home/ivas/.conda/envs/p2_tensor_v2/bin/python -c "import sklearn; sklearn.show_versions()"
 
-nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used,utilization.gpu,utilization.memory --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
-serverPID=$!
-python ./src/training_tensorflow.py --dataset=CIFAR10 --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 --run=-1
-kill $serverPID
+python --version
+
+#nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used,utilization.gpu,utilization.memory --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
+#serverPID=$!
+/home/ivas/.conda/envs/p2_tensor_v2/bin/python ./src/training_tensorflow.py --dataset=CIFAR10 --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 --run=-1
+#kill $serverPID

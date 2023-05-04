@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=pytorch-test
+#SBATCH --job-name=pytorch-experiment
 #SBATCH --output=job.%j.out
 #SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu
