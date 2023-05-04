@@ -26,9 +26,6 @@ def main(args):
     file_name  = f"run{args.run}-{args.device}-epoch{args.epochs}-batchsize{args.batch_size}-pytorch-{args.dataset}-{args.resnet_size}_MODEL.csv"
     csv_path = os.path.join(EXPORT_PATH, 'experiments', args.device, 'pytorch', file_name)
 
-    print(csv_path)
-    write_to_file("epoch;step;loss_value;timestamp", csv_path)
-
     # Print the parsed arguments
     print(f"Framework: Pytorch")
     print(f"Dataset: {args.dataset}")
@@ -95,7 +92,7 @@ def main(args):
     n_epochs = int(args.epochs)
 
     # create header for csv file
-    #write_to_file("epoch;precision;recall;accuracy;f1;timestamp", csv_path)
+    write_to_file("epoch;precision;recall;f1;timestamp", csv_path)
     
     for epoch in range(n_epochs):  # number of epochs
         running_loss = 0.0
@@ -138,7 +135,7 @@ def main(args):
         model.train()
 
         # in the end of each epoch write model eval metrics
-        #write_to_file(get_modeloutputdata([epoch,percision,recall,acc,f1]), csv_path)
+        write_to_file(get_modeloutputdata([epoch,percision,recall,acc,f1]), csv_path)
 
     print('Finished Training')
 
