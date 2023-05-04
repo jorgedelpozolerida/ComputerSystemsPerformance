@@ -127,10 +127,10 @@ def main(args):
         with torch.no_grad():
             model.eval()
             x_test_tensor = torch.from_numpy(x_test).permute(0, 3, 1, 2).float()
-            y_pred = x_test_tensor.to(device)
+            y_pred = model(x_test_tensor.to(device)).cpu().numpy()
 
             # get the predicted label
-            print(y_pred)
+            print(y_pred, y_pred.shape)
             y_pred_actual = [np.argmax(x) for x in y_pred]
             (acc, recall, percision, f1) = generate_metrics(y_pred_actual, y_test)
             print(acc, recall, percision, f1)
