@@ -121,7 +121,7 @@ def main(args):
                 print('[%d, %5d] loss: %.3f' %
                     (epoch + 1, step + 1, running_loss / 100))
                 running_loss = 0.0
-        x_test_tensor = torch.from_numpy(x_test)
+        x_test_tensor = torch.from_numpy(x_test).permute(0, 3, 1, 2).float()
         y_pred = model(x_test_tensor)
         print(y_pred)
         (acc, recall, percision, f1) = generate_metrics(y_pred, y_test)
