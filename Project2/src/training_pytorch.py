@@ -95,7 +95,7 @@ def main(args):
     n_epochs = int(args.epochs)
 
     # create header for csv file
-    write_to_file("epoch;precision;recall;accuracy;f1;timestamp", csv_path)
+    #write_to_file("epoch;precision;recall;accuracy;f1;timestamp", csv_path)
     
     for epoch in range(n_epochs):  # number of epochs
         running_loss = 0.0
@@ -121,11 +121,13 @@ def main(args):
                 print('[%d, %5d] loss: %.3f' %
                     (epoch + 1, step + 1, running_loss / 100))
                 running_loss = 0.0
-        y_pred = model.predict(x_test)
+        x_test_tensor = torch.from_numpy(x_test)
+        y_pred = model(x_test_tensor)
+        print(y_pred)
         (acc, recall, percision, f1) = generate_metrics(y_pred, y_test)
 
         # in the end of each epoch write model eval metrics
-        write_to_file(get_modeloutputdata([epoch,percision,recall,acc,f1]), csv_path)
+        #write_to_file(get_modeloutputdata([epoch,percision,recall,acc,f1]), csv_path)
 
     print('Finished Training')
 
