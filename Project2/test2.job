@@ -16,13 +16,14 @@ module load TensorFlow/2.3.1-fosscuda-2020a-Python-3.8.2
 
 module load typing-extensions/3.7.4.3-GCCcore-9.3.0-Python-3.8.2
 module load SciPy-bundle/2020.03-foss-2020a-Python-3.8.2
-module load scikit-learn/0.21.3-foss-2019b-Python-3.7.4
 
 source activate p2_tensor
+#pip install sympy Pillow tensorflow
 
 nvcc -V
 
-nvidia-smi
+#python3 -c 'import numpy; print (numpy.version.version)'
+#python -c 'import numpy; print (numpy.version.version)'
 
 echo "************* \n"
 
