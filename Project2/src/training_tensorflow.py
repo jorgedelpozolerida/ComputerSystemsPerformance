@@ -90,6 +90,7 @@ def main(args):
     # Prepare the training dataset
     batch_size = int(args.batch_size)
     steps_per_epoch = len(x_train)//batch_size
+    tf.print(steps_per_epoch)
 
     inputs = tf.keras.Input(shape=shape)
     x = resnet(inputs, training=True)
