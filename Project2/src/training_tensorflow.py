@@ -41,13 +41,13 @@ def main(args):
     csv_path = os.path.join(EXPORT_PATH, 'experiments', args.device, 'tensorflow', file_name)
 
     # Print the parsed arguments
-    print(f"Framework: Tensorflow")
-    print(f"Dataset: {args.dataset}")
-    print(f"Resnet size: {args.resnet_size}")
-    # print(f"Epochs: {args.epochs}")
-    # print(f"Batch size: {args.batch_size}")
+    tf.print(f"Framework: Pytorch")
+    tf.print(f"Dataset: {args.dataset}")
+    tf.print(f"Resnet size: {args.resnet_size}")
+    tf.print(f"Epochs: {args.epochs}")
+    tf.print(f"Batch size: {args.batch_size}")
     # print(f"Output directory: {args.out_dir}")
-    print("**************************************")
+    tf.print("")
 
     # Get all prints before training away
     # output_buffer = io.StringIO()
@@ -89,6 +89,7 @@ def main(args):
 
     # Prepare the training dataset
     batch_size = int(args.batch_size)
+    steps_per_epoch = len(x_train)//batch_size
 
     inputs = tf.keras.Input(shape=shape)
     x = resnet(inputs, training=True)
@@ -114,7 +115,7 @@ def main(args):
     model.fit(np.asarray(x_train), np.asarray(y_train), 
               epochs=int(args.epochs), 
               batch_size=batch_size, 
-              steps_per_epoch=100, 
+              steps_per_epoch=steps_per_epoch, 
               callbacks=[CustomCallback(x_test, y_test, csv_path)])
 
 

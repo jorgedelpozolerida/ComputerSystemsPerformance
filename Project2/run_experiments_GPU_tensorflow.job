@@ -59,6 +59,7 @@ do
                         /home/ivas/.conda/envs/p2_tensor_v2/bin/python ./src/training_tensorflow.py --dataset "${dataset}" --resnet_size "${model}" --device "${device}" --batch_size "${batch_size}" --epochs "${epoch}" --run "${run}"
                         kill $serverPID
                         sleep 2
+                        nvidia-smi --gpu-reset
                     done
                 done
             done

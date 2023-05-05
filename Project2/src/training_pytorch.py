@@ -58,10 +58,12 @@ def main(args):
 
     # Convert data to PyTorch tensors and create DataLoader
     batch_size = int(args.batch_size)
+    n_epochs = int(args.epochs)
+    steps_per_epoch = len(x_train)//batch_size
     data_tensor = torch.from_numpy(x_train).permute(0, 3, 1, 2).float()
     labels_tensor = torch.tensor(y_train, dtype=torch.long)
     train_set = torch.utils.data.TensorDataset(data_tensor, labels_tensor)
-    trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=False, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=False, num_workers=8)
 
     # Load ResNet model
     if args.resnet_size == 'resnet50':
@@ -88,9 +90,6 @@ def main(args):
     # Reset stdout to its original value
     sys.stdout = sys.__stdout__
 
-    # Train the model
-    n_epochs = int(args.epochs)
-
     # create header for csv file
     write_to_file("epoch;precision;recall;f1;timestamp", csv_path)
     
@@ -114,7 +113,7 @@ def main(args):
 
             # Print statistics
             running_loss += loss.item()
-            if step % 100 == 99:    # print every 100 mini-batches
+            if step % steps_per_epoch == 0:    # print every 100 mini-batches
                 print('[%d, %5d] loss: %.3f' %
                     (epoch + 1, step + 1, running_loss / 100))
                 running_loss = 0.0

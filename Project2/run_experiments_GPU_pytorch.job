@@ -52,6 +52,7 @@ do
                         python ./src/training_pytorch.py --dataset "${dataset}" --resnet_size "${model}" --device "${device}" --batch_size "${batch_size}" --epochs "${epoch}" --run "${run}"
                         kill $serverPID
                         sleep 2
+                        nvidia-smi --gpu-reset
                     done
                 done
             done
