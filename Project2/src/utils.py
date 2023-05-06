@@ -126,3 +126,13 @@ def generate_metrics(y_pred, y_true):
     f1 = f1_score(y_true, y_pred, average='macro')
 
     return (acc, recall, percision, f1)
+
+def ensure_dir(directory):
+    '''
+    Creates dir if it does not exist and returns it
+    '''
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        print(f"Created the following dir: {directory}")
+    
+    return directory
