@@ -120,7 +120,7 @@ def main(args):
               epochs=int(args.epochs), 
               batch_size=batch_size, 
               steps_per_epoch=steps_per_epoch, 
-              callbacks=[CustomCallback(x_test, y_test, csv_path)])
+              callbacks=[CustomCallback(x_test, y_test, csv_path), early_stopping])
 
 
     print('Finished Training')
