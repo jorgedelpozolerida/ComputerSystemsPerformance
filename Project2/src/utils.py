@@ -113,7 +113,7 @@ def get_modeloutputdata(values):
     for val in values:
         value_str = value_str + f"{val};"
 
-    return f"{value_str};{timestamp}"
+    return f"{value_str}{timestamp}"
 
 def write_to_file(data: str, path: str):
     with open(path, "a+") as file:
