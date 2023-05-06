@@ -35,6 +35,15 @@ THISFILE_PATH = os.path.abspath(__file__)
 PROJECT2_PATH =  os.path.abspath(os.path.join(THISFILE_PATH, os.pardir, os.pardir))
 
 
+'''
+TODO:
+- Total energy consumption of training between the frameworks per Model and Batch size
+- Maximum energy spike of the same variance
+- Growth of energy usage + gpu utilization for increase in batch size
+- Mean gpu utilization between frameworks
+'''
+
+
 def get_modelpath_from_energypath(path):
     '''
     Creates full path for model path based on energy path
@@ -113,7 +122,7 @@ def read_model_csv(csv_path, framework, timestamp_0):
     '''
     if framework == 'pytorch':
         # read with error in it
-        header  = ["epoch","precision","recall","f1", "error", "timestamp"]
+        header  = ["epoch","precision","recall","accuracy", "f1", "error", "timestamp"] 
         model_data = pd.read_csv(csv_path, skiprows=[0], sep=';|;;', names=header, engine='python')
         model_data.drop("error", axis=1, inplace=True)
     else :
@@ -153,6 +162,15 @@ def get_allexperiments_data(exp_dir, framework):
         model_data_temp = read_model_csv(row['model_filepath'], framework,
                                          timestamp_0 = energy_data_temp['timestamp'].min() # needed to coordinate both time series
                                          )
+        # Assign bins to time in energy data 
+        bins = model_data_temp['time_sec'].unique().tolist()
+        bins = [-1] + bins
+        bins[-1] = bins[-1] + 1
+        labels = [int(i) + 1 for i in model_data_temp['epoch'].unique().tolist()]
+
+        energy_data_temp['epoch_number'] =  pd.cut( energy_data_temp['time_sec'], bins=bins, labels=labels)
+
+                
         row_temp = row.drop(['energy_filepath', 'model_filepath'])
         
         # Add id columns and append to list with all data
@@ -164,20 +182,28 @@ def get_allexperiments_data(exp_dir, framework):
     energy_data = pd.concat(energy_data)
     
     
+    # combine data per runs and per batches
+    columns_to_avg = ['power', 'temp', 'mem_used', 'gpu_util', 'mem_util']
+    energydata_averagedperepoch = energy_data.groupby(['epoch_number', 'run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').reset_index()
+    energydata_averagedperepoch_averagedthroughruns = energydata_averagedperepoch.groupby(['epoch_number', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').round(3).reset_index()
+
+
+    # Save data
     _logger.info(f"Saving overview for {framework}")
     df_overview.drop(['energy_filepath', 'model_filepath'], axis=1).to_csv(os.path.join(save_dir, f"data_overview_{framework}.csv"), 
                        index=False)
+    energydata_averagedperepoch_averagedthroughruns.to_csv(os.path.join(save_dir, f"cleandata_perepoch_{framework}.csv"), index=False)
 
-    return df_overview, model_data, energy_data
+    return df_overview, model_data, energy_data, energydata_averagedperepoch_averagedthroughruns
 
 
-def plot_energyvar_timeseries(fig, ax, energy_data, model_data, levels_values, var_to_plot, title=""):
+def plot_energyvar_timeseries(fig, ax, energy_data, model_data, levels_values, var_to_plot,x_var="time_sec", title=""):
     '''
     Plots some var_to_plot 'y' through time from energy data for some combination of levels values (id).
     
     note: example for 'levels_values': 
     {
-    'run': 1,
+    'run': 1, # not necessary if per epochs
     'device': 'gpu',
     'max_epoch': 10,
     'batch_size': 64,
@@ -185,18 +211,14 @@ def plot_energyvar_timeseries(fig, ax, energy_data, model_data, levels_values, v
     'dataset': 'CIFAR100',
     'model': 'resnet101'
     }
-    '''
-    # timestamp  power  temp  mem_used  gpu_util  mem_util  time_sec run device max_epoch batch_size framework   dataset      model
-
-    assert len(levels_values.keys()) == 7, "Please provide a value for all levels"
-    
+    '''    
     # filter data
     query_string = ' & '.join(f'{k} == "{v}"' for k, v in levels_values.items())
     energydata_filtered = energy_data.query(query_string)
     modeldata_filtered = model_data.query(query_string)
 
     # plot data
-    sns.lineplot(data=energydata_filtered, x="time_sec", y=var_to_plot, ax=ax)
+    sns.lineplot(data=energydata_filtered, x=x_var, y=var_to_plot, ax=ax)
     
     # title and axis management
     ylabels = {
@@ -207,40 +229,67 @@ def plot_energyvar_timeseries(fig, ax, energy_data, model_data, levels_values, v
         "mem_util": "Memory utilization (in %)"
     }
     ax.set_ylabel(ylabels[var_to_plot])
-    ax.set_xlabel("Time (s)")
-    ax.set_title(title)
     
-    for i, timestamp in enumerate(modeldata_filtered['time_sec']):
-        ax.axvline(x=timestamp, color='gray', linestyle='--')
-        # ax.text(timestamp, 0.95, f"batch:{i+1}", 
-        #         rotation=90, 
-        #         ha='right', va='top', 
-        #         fontsize=8)
     
+    if x_var == 'time_sec':
+        ax.set_xlabel("Time (s)")
+        ax.set_title(title)
+        
+        for i, timestamp in enumerate(modeldata_filtered['time_sec']):
+            ax.axvline(x=timestamp, color='gray', linestyle='--')
+
+    elif x_var == "epoch_number":
+        ax.set_xlabel("Epoch number")
+        ax.set_title(title)
+        
     
     return ax
 
-def plot_single_experiment( levels_values, model_data, energy_data, framework, 
+def plot_singleexperiment_timeseries( levels_values, model_data, energy_data, framework, 
                            vars_toplot = ["power",  "temp",  "mem_used",  "gpu_util",  "mem_util"], 
+                           x_var = "time_sec",
                            save=True):
     '''
     Function that generates plot for sinlge experiment
     '''
 
     fig, ax = plt.subplots(1, len(vars_toplot), figsize=(len(vars_toplot)*10, 5))
-    title =  "Experiment with parameters: " + ", ".join([f"{k}={v}" for k, v in levels_values.items()])
+    title =  f"Experiment through {x_var} with parameters: " + ", ".join([f"{k}={v}" for k, v in levels_values.items()])
     
     for i, var_toplot in enumerate(vars_toplot):
         ax[i] = plot_energyvar_timeseries( fig, ax[i],  energy_data, model_data,
-                            levels_values = levels_values,
-                        var_to_plot=var_toplot)
+                                          levels_values = levels_values,
+                                          x_var=x_var,
+                                          var_to_plot=var_toplot)
     
     fig.suptitle(title)
     
     if save:
         save_dir = utils.ensure_dir(os.path.join(PROJECT2_PATH, "plots", framework))
-        fig.savefig(os.path.join(save_dir, "singleexperiment_" + "_".join([f"{k}={v}" for k, v in levels_values.items()])+ ".png"),  bbox_inches='tight')
+        fig.savefig(os.path.join(save_dir, f"singleexperiment_{x_var}_" + "_".join([f"{k}={v}" for k, v in levels_values.items()])+ ".png"),  bbox_inches='tight')
 
+def plot_singleexperiment_epochs( levels_values, combined_data, framework, 
+                           vars_toplot = ["power",  "temp",  "mem_used",  "gpu_util",  "mem_util"], 
+                           x_var = "epoch_number",
+                           save=True):
+    '''
+    Function that generates plot for sinlge experiment
+    '''
+
+    fig, ax = plt.subplots(1, len(vars_toplot), figsize=(len(vars_toplot)*10, 5))
+    title =  f"Experiment through {x_var} with parameters: " + ", ".join([f"{k}={v}" for k, v in levels_values.items()])
+    
+    for i, var_toplot in enumerate(vars_toplot):
+        ax[i] = plot_energyvar_timeseries( fig, ax[i],  energy_data = combined_data, model_data = None,
+                                          levels_values = levels_values,
+                                          x_var=x_var,
+                                          var_to_plot=var_toplot)
+    
+    fig.suptitle(title)
+    
+    if save:
+        save_dir = utils.ensure_dir(os.path.join(PROJECT2_PATH, "plots", framework))
+        fig.savefig(os.path.join(save_dir, f"singleexperiment_{x_var}_" + "_".join([f"{k}={v}" for k, v in levels_values.items()])+ ".png"),  bbox_inches='tight')
 
 def main(args):
 
@@ -249,15 +298,17 @@ def main(args):
     
     # PYTORCH -----------------------------------------------------------------
     # Load experiment data
-    df_overview_pytorch, model_data_pytorch, energy_data_pytorch = get_allexperiments_data(exp_dir, "pytorch")
+    df_overview_pytorch, model_data_pytorch, energy_data_pytorch, combineddata_perepoch_averaged = get_allexperiments_data(exp_dir, "pytorch")
     print("PYTORCH\n",
           f"Number of experiments: {df_overview_pytorch.shape}\n", 
           f"Size of model data: {model_data_pytorch.shape}\n", 
-          f"Size of energy data: {energy_data_pytorch.shape}"
+          f"Size of energy data: {energy_data_pytorch.shape}\n",
+          f"Size of combined data per epoch (averaged through runs): {combineddata_perepoch_averaged.shape}",
+
           )
 
 
-    # 1 - Single experiment ---------------------------------------------
+    # 1 - Single experiment
     # NOTE: change values here to select what you want to see
     levels_values = {
                 'run': 1,
@@ -268,15 +319,30 @@ def main(args):
                 'dataset': 'SVHN',
                 'model': 'resnet50'
                 }
-    plot_single_experiment(levels_values, model_data_pytorch, energy_data_pytorch, framework='pytorch',
-                           vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"])
+    # plot single run for a combinaiton of levels
+    plot_singleexperiment_timeseries(levels_values, model_data_pytorch, energy_data_pytorch, framework='pytorch',
+                                        x_var="time_sec",
+                                        vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"])
+    levels_values.pop('run')
+    # plot avergaed runs averaged per epoch for combinaiton of levels
+    plot_singleexperiment_timeseries(levels_values, model_data_pytorch, combineddata_perepoch_averaged, framework='pytorch',
+                                        vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"],
+                                        x_var="epoch_number"
+                                        )
     
-    
+    # 2 - Total energy consumption of training between the frameworks per Model and Batch size
+    # 3 - Maximum energy spike of the same variance
+    # 4 - Growth of energy usage + gpu utilization for increase in batch size
+    # 5 - Mean gpu utilization between frameworks  
 
 
     # TENSORFLOW -----------------------------------------------------------------
 
-
+    # 1 - Single experiment ---------------------------------------------
+    # 2 - Total energy consumption of training between the frameworks per Model and Batch size
+    # 3 - Maximum energy spike of the same variance
+    # 4 - Growth of energy usage + gpu utilization for increase in batch size
+    # 5 - Mean gpu utilization between frameworks  
     
 
 
