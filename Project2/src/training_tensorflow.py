@@ -112,6 +112,9 @@ def main(args):
     
     tf.print(np.asarray(x_train).shape, np.asarray(y_train).shape)
 
+    # disable early stopping for the models
+    early_stopping = tf.keras.callbacks.EarlyStopping(patience=int(args.epochs), verbose=1)
+
     # start training
     model.fit(np.asarray(x_train), np.asarray(y_train), 
               epochs=int(args.epochs), 
