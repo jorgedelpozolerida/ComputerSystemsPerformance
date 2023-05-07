@@ -24,7 +24,7 @@ datasets=("SVHN" "CIFAR10" "CIFAR100")
 models=("resnet50" "resnet101" "resnet152")
 
 # fixed
-batch_sizes=(64 128 256 512 1024)
+batch_sizes=(32 64 128 256)
 epochs=(10)
 devices=("gpu")
 

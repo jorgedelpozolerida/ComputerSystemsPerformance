@@ -30,5 +30,5 @@ python --version
 
 #nvidia-smi --query-gpu=timestamp,power.draw,temperature.gpu,memory.used,utilization.gpu,utilization.memory --format=csv --loop-ms=1000 > "./experiments/gpu/tensorflow/test.csv" & 
 #serverPID=$!
-/home/ivas/.conda/envs/p2_tensor_v2/bin/python ./src/training_tensorflow.py --dataset=CIFAR10 --resnet_size=resnet50 --device=gpu --batch_size=128 --epochs=10 --run=-1
+/home/ivas/.conda/envs/p2_tensor_v2/bin/python ./src/training_tensorflow.py --dataset=SVHN --resnet_size=resnet152 --device=gpu --batch_size=1024 --epochs=10 --run=0
 #kill $serverPID

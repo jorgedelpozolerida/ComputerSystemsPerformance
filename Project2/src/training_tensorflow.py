@@ -59,7 +59,11 @@ def main(args):
         physical_devices = tf.config.list_physical_devices('GPU') # get number of gpu
         # check if GPU is available
         if len(physical_devices) > 0:
-            tf.config.experimental.set_memory_growth(physical_devices[0], True)
+            try:
+                tf.config.experimental.set_memory_growth(physical_devices[0], True)
+            except:
+                # likely a test run so the device is virtual - ignore 
+                pass
             print("GPU: ",physical_devices)
         else:
             pass
