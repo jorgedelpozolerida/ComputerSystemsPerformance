@@ -91,7 +91,7 @@ def main(args):
     sys.stdout = sys.__stdout__
 
     # create header for csv file
-    write_to_file("epoch;precision;recall;f1;timestamp", csv_path)
+    write_to_file("epoch;precision;recall;accuracy;f1;timestamp", csv_path)
     
     for epoch in range(n_epochs):  # number of epochs
         running_loss = 0.0
