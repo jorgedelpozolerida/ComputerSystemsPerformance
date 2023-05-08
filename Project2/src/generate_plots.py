@@ -120,14 +120,16 @@ def read_model_csv(csv_path, framework, timestamp_0):
     '''
     Reads model data an processes it into clean format
     '''
-    if framework == 'pytorch':
-        # read with error in it
-        header  = ["epoch","precision","recall","accuracy", "f1", "error", "timestamp"] 
-        model_data = pd.read_csv(csv_path, skiprows=[0], sep=';|;;', names=header, engine='python')
-        model_data.drop("error", axis=1, inplace=True)
-    else :
-        # read normally
-        model_data = pd.read_csv(csv_path, sep=";")
+    # if framework == 'pytorch':
+    #     # read with error in it
+    #     header  = ["epoch","precision","recall","accuracy", "f1", "error", "timestamp"] 
+    #     model_data = pd.read_csv(csv_path, skiprows=[0], sep=';|;;', names=header, engine='python')
+    #     model_data.drop("error", axis=1, inplace=True)
+    # else :
+    #     continue
+    #     # read normally
+    
+    model_data = pd.read_csv(csv_path, sep=";")
     
     # Process data into nice format and datatype
     # time
@@ -162,11 +164,13 @@ def get_allexperiments_data(exp_dir, framework):
         model_data_temp = read_model_csv(row['model_filepath'], framework,
                                          timestamp_0 = energy_data_temp['timestamp'].min() # needed to coordinate both time series
                                          )
+
         # Assign bins to time in energy data 
         bins = model_data_temp['time_sec'].unique().tolist()
         bins = [-1] + bins
         bins[-1] = bins[-1] + 1
         labels = [int(i) + 1 for i in model_data_temp['epoch'].unique().tolist()]
+
 
         energy_data_temp['epoch_number'] =  pd.cut( energy_data_temp['time_sec'], bins=bins, labels=labels)
 
@@ -308,27 +312,27 @@ def main(args):
           )
 
 
-    # 1 - Single experiment
-    # NOTE: change values here to select what you want to see
-    levels_values = {
-                'run': 1,
-                'device': 'gpu',
-                'max_epoch': 10,
-                'batch_size': 128,
-                'framework':  "pytorch",
-                'dataset': 'SVHN',
-                'model': 'resnet50'
-                }
-    # plot single run for a combinaiton of levels
-    plot_singleexperiment_timeseries(levels_values, model_data_pytorch, energy_data_pytorch, framework='pytorch',
-                                        x_var="time_sec",
-                                        vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"])
-    levels_values.pop('run')
-    # plot avergaed runs averaged per epoch for combinaiton of levels
-    plot_singleexperiment_timeseries(levels_values, model_data_pytorch, combineddata_perepoch_averaged, framework='pytorch',
-                                        vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"],
-                                        x_var="epoch_number"
-                                        )
+    # # 1 - Single experiment
+    # # NOTE: change values here to select what you want to see
+    # levels_values = {
+    #             'run': 1,
+    #             'device': 'gpu',
+    #             'max_epoch': 10,
+    #             'batch_size': 128,
+    #             'framework':  "pytorch",
+    #             'dataset': 'SVHN',
+    #             'model': 'resnet50'
+    #             }
+    # # plot single run for a combinaiton of levels
+    # plot_singleexperiment_timeseries(levels_values, model_data_pytorch, energy_data_pytorch, framework='pytorch',
+    #                                     x_var="time_sec",
+    #                                     vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"])
+    # levels_values.pop('run')
+    # # plot avergaed runs averaged per epoch for combinaiton of levels
+    # plot_singleexperiment_timeseries(levels_values, model_data_pytorch, combineddata_perepoch_averaged, framework='pytorch',
+    #                                     vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"],
+    #                                     x_var="epoch_number"
+    #                                     )
     
     # 2 - Total energy consumption of training between the frameworks per Model and Batch size
     # 3 - Maximum energy spike of the same variance
@@ -337,7 +341,14 @@ def main(args):
 
 
     # TENSORFLOW -----------------------------------------------------------------
+    df_overview_pytorch, model_data_pytorch, energy_data_pytorch, combineddata_perepoch_averaged = get_allexperiments_data(exp_dir, "tensorflow")
+    print("TENSORFLOW\n",
+          f"Number of experiments: {df_overview_pytorch.shape}\n", 
+          f"Size of model data: {model_data_pytorch.shape}\n", 
+          f"Size of energy data: {energy_data_pytorch.shape}\n",
+          f"Size of combined data per epoch (averaged through runs): {combineddata_perepoch_averaged.shape}",
 
+          )
     # 1 - Single experiment ---------------------------------------------
     # 2 - Total energy consumption of training between the frameworks per Model and Batch size
     # 3 - Maximum energy spike of the same variance
