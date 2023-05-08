@@ -174,10 +174,17 @@ def get_allexperiments_data(exp_dir, framework):
 
         energy_data_temp['epoch_number'] =  pd.cut( energy_data_temp['time_sec'], bins=bins, labels=labels)
 
-                
-        row_temp = row.drop(['energy_filepath', 'model_filepath'])
         
+        # remove data not inside any epoch timeframe
+        energy_data_temp = energy_data_temp[ ~ energy_data_temp['epoch_number'].isna()]
+        
+        # convert all epochs to same scale
+        model_data_temp['epoch'] = model_data_temp['epoch'].astype(int) + 1
+
+
         # Add id columns and append to list with all data
+        row_temp = row.drop(['energy_filepath', 'model_filepath'])
+
         model_data.append(model_data_temp.assign(**row_temp))
         energy_data.append(energy_data_temp.assign(**row_temp))
 
@@ -185,10 +192,19 @@ def get_allexperiments_data(exp_dir, framework):
     model_data = pd.concat(model_data)
     energy_data = pd.concat(energy_data)
     
-    
-    # combine data per runs and per batches
-    columns_to_avg = ['power', 'temp', 'mem_used', 'gpu_util', 'mem_util']
-    energydata_averagedperepoch = energy_data.groupby(['epoch_number', 'run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').reset_index()
+    # combine data per runs and per batches and average across runs
+    columns_to_avg = [
+        # energy cols
+        'power', 'temp', 'mem_used', 'gpu_util', 'mem_util',
+        # model cols
+        "precision", "recall", "accuracy", "f1"
+                      ]
+    energy_data_combined = pd.merge(energy_data,
+                                    model_data,
+                                    left_on=['epoch_number', 'run', 'device', 'max_epoch', 'batch_size', 'framework','dataset', 'model'],
+                                    right_on = ['epoch', 'run', 'device', 'max_epoch', 'batch_size', 'framework','dataset', 'model'],
+                                    how='left')
+    energydata_averagedperepoch = energy_data_combined.groupby(['epoch_number', 'run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').reset_index()
     energydata_averagedperepoch_averagedthroughruns = energydata_averagedperepoch.groupby(['epoch_number', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').round(3).reset_index()
 
 
