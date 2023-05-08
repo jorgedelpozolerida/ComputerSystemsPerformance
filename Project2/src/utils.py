@@ -310,7 +310,11 @@ def get_allexperiments_data(framework, device="gpu"):
                                     how='left')
     energydata_averagedperepoch = energy_data_combined.groupby(['epoch_number','total_time', 'run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').reset_index()
     energydata_averagedperepoch_averagedthroughruns = energydata_averagedperepoch.groupby(['epoch_number','total_time', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').round(3).reset_index()
-
+    dataout  = energydata_averagedperepoch_averagedthroughruns
+    
+    # calculate energy per epoch
+    dataout['energy'] = dataout['total_time']* dataout['power'] # in joules
+    dataout['energy'] = dataout['energy'].round(3)
 
     # Save data
     _logger.info(f"Saving overview for {framework}")
@@ -325,23 +329,37 @@ def get_allexperiments_data(framework, device="gpu"):
 ###########################################
 
 
-def get_averaged_data(all_data, vars_to_avg, n_epochs_exclude = 1):
+def get_total_energy_data(all_data,  n_epochs_exclude = 1):
     '''
-    Calculates the average for data columnss across epochs afer 
-    excluding the first "n_epochs_exclude" ones.
-    Input data is all processed data as in "all_data_processed.csv"
+    Calculates the total energy per training. 
+    Input data is all processed data as in "all_data_processed.csv" and
+    expects column "energy" to exist
     '''
+
+    id_cols = ['batch_size', 'framework', 'dataset', 'model']
+
+    data_totalenergy = all_data.groupby(id_cols)['energy'].agg('sum').reset_index()
+
+    return data_totalenergy
+
+def get_avg_data(all_data,  n_epochs_exclude = 1):
+    '''
+    Average across epochs all variables 
+    '''
+    
     # 'epoch_number', 'device', 'max_epoch', 'batch_size', 'framework',
     #    'dataset', 'model', 'power', 'temp', 'mem_used', 'gpu_util', 'mem_util',
     #    'precision', 'recall', 'accuracy', 'f1'
-    id_cols = ['run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model']
+    id_cols = ['batch_size', 'framework', 'dataset', 'model']
     columns_to_avg = [
         # energy cols
-        'power', 'temp', 'mem_used', 'gpu_util', 'mem_util',
+        'power', 'temp', 'mem_used', 'gpu_util', 'mem_util', 'energy',
         # model cols
-        "precision", "recall", "accuracy", "f1"
+        "precision", "recall", "accuracy", "f1", "total_time"
                       ]
-    data_total = all_data.groupby(id_cols)[columns_to_avg].agg('mean').reset_index()
+
+
+    data_avg = all_data.groupby(id_cols)[columns_to_avg].agg('sum').reset_index()
     
     
-    return data_total
+    return data_avg
