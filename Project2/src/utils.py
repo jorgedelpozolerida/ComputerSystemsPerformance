@@ -359,7 +359,7 @@ def get_avg_data(all_data,  n_epochs_exclude = 1):
                       ]
 
 
-    data_avg = all_data.groupby(id_cols)[columns_to_avg].agg('sum').reset_index()
+    data_avg = all_data.groupby(id_cols)[columns_to_avg].agg('mean').reset_index()
     
     
     return data_avg

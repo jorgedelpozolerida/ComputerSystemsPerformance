@@ -24,6 +24,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
+sns.set_context('paper')
+
 
 import utils
 
@@ -138,59 +140,126 @@ def plot_singleexperiment_epochs( levels_values, combined_data, framework,
         save_dir = utils.ensure_dir(os.path.join(PROJECT2_PATH, "plots", framework))
         fig.savefig(os.path.join(save_dir, f"singleexperiment_{x_var}_" + "_".join([f"{k}={v}" for k, v in levels_values.items()])+ ".png"),  bbox_inches='tight')
 
+
+def plot_3x3(data, filename,  suptitle="",  y_var = 'energy', x_var = 'batch_size', split_var ='framework', columns_var = 'model', rows_var = 'dataset'
+                ): 
+    '''
+    Plots a 3x3 suplots, with barplots split by "var_split", and "x_var" and "y_var".
+    
+    Input data from either get_total_energy_data or get_avg_data utputs
+    '''
+    fig, axes = plt.subplots(3, 3, figsize=(30, 15))
+    
+    column_values = data[columns_var].unique()
+    row_values = data[rows_var].unique()
+    
+    for i, dataset in enumerate(row_values):
+        
+        data_row = data[data["dataset"] == dataset]
+        
+        for j, col_value in enumerate(column_values):
+            
+            data_column  = data_row[data_row["model"] == col_value]
+
+            axes[i,j] = sns.barplot(x = x_var, y=y_var, hue = split_var, data = data_column, ax=axes[i,j])
+            # axes[i,j].set_xlabel('Batch size')
+            # axes[i,j].set_ylabel(ylabel)
+            axes[i,j].set_title(col_value)
+            
+        fig.suptitle(suptitle)
+        fig.savefig(os.path.join(PROJECT2_PATH, 'plots', filename),  bbox_inches='tight' )
+
+
 def main(args):
     
     # LOAD DATA ------------------------------------------------------------
     # Pytorch 
     
-    df_overview_pytorch, model_data_pytorch, energy_data_pytorch, combined_data_pytorch = utils.get_allexperiments_data("pytorch", device=args.device)
-    print("PYTORCH\n",
-          f"Number of experiments: {df_overview_pytorch.shape}\n", 
-          f"Size of model data: {model_data_pytorch.shape}\n", 
-          f"Size of energy data: {energy_data_pytorch.shape}\n",
-          f"Size of combined data per epoch (averaged through runs): {combined_data_pytorch.shape}",
-          )
-    # Tensorflow ------------------------------------------------------------
-    df_overview_tensorflow, model_data_tensorflow, energy_data_tensorflow, combined_data_tensorflow = utils.get_allexperiments_data( "tensorflow", device=args.device)
-    print("TENSORFLOW\n",
-          f"Number of experiments: {df_overview_tensorflow.shape}\n", 
-          f"Size of model data: {model_data_tensorflow.shape}\n", 
-          f"Size of energy data: {energy_data_tensorflow.shape}\n",
-          f"Size of combined data per epoch (averaged through runs): {combined_data_tensorflow.shape}",
+    # df_overview_pytorch, model_data_pytorch, energy_data_pytorch, combined_data_pytorch = utils.get_allexperiments_data("pytorch", device=args.device)
+    # print("PYTORCH\n",
+    #       f"Number of experiments: {df_overview_pytorch.shape}\n", 
+    #       f"Size of model data: {model_data_pytorch.shape}\n", 
+    #       f"Size of energy data: {energy_data_pytorch.shape}\n",
+    #       f"Size of combined data per epoch (averaged through runs): {combined_data_pytorch.shape}",
+    #       )
+    # # Tensorflow ------------------------------------------------------------
+    # df_overview_tensorflow, model_data_tensorflow, energy_data_tensorflow, combined_data_tensorflow = utils.get_allexperiments_data( "tensorflow", device=args.device)
+    # print("TENSORFLOW\n",
+    #       f"Number of experiments: {df_overview_tensorflow.shape}\n", 
+    #       f"Size of model data: {model_data_tensorflow.shape}\n", 
+    #       f"Size of energy data: {energy_data_tensorflow.shape}\n",
+    #       f"Size of combined data per epoch (averaged through runs): {combined_data_tensorflow.shape}",
 
-          )
+    #       )
     
-    # All data merged together and saved 
-    combined_data_pytorch['framework'] = 'pytorch'
-    combined_data_tensorflow['framework'] = 'tensorflow'
+    # # All data merged together and saved 
+    # combined_data_pytorch['framework'] = 'pytorch'
+    # combined_data_tensorflow['framework'] = 'tensorflow'
     
-    merged_df = pd.concat([combined_data_pytorch, combined_data_tensorflow], ignore_index=True)
-    merged_df.to_csv(os.path.join(PROJECT2_PATH, "dataout", "all_data_processed.csv"), index=False)
+    # all_data = pd.concat([combined_data_pytorch, combined_data_tensorflow], ignore_index=True)
+    # all_data.to_csv(os.path.join(PROJECT2_PATH, "dataout", "all_data_processed.csv"), index=False)  
+    
+    
+    
+    # PROCESS DATA -------------------------------------------------------------
+
+    all_data = pd.read_csv("/home/jorge/Insync/jorgitoje@gmail.com/OneDrive/Documentos/JORGE/EDUCATION/MASTER_DATASCIENCE/Semester2/ComputerSystemsPerformance/GroupProjects/ComputerSystemsPerformance/Project2/dataout/all_data_processed.csv")
+    
+    # remove unnecessary cols
+    all_data.drop(["max_epoch", "device"], axis=1, inplace=True)
+    
+    # remove initial epoch due to different behaviour (according to Pina)
+    n_epochs_exclude  = 1 # initial epochs to exclude
+    all_data_normalepochs = all_data[all_data['epoch_number'] > n_epochs_exclude]
+    all_data_firstepochs = all_data[all_data['epoch_number'] <= n_epochs_exclude]
+
+    # total energy
+    data_totalenergy_normalepochs = utils.get_total_energy_data(all_data_normalepochs)
+    data_totalenergy_firstepochs = utils.get_total_energy_data(all_data_firstepochs)
+
+    
+    # average value throughout epochs
+    data_avg_normalepochs = utils.get_avg_data(all_data_normalepochs)
+    data_avg_firstepochs = utils.get_avg_data(all_data_firstepochs)
 
 
-    # # 1 - Single experiment
+    # PLOT DATA ------------------------------------------------------------
+    
+    # 1 - Plot a single experiment/combination of levels 
     # # NOTE: change values here to select what you want to see
     # levels_values = {
-    #             'run': 1,
     #             'device': 'gpu',
     #             'max_epoch': 10,
     #             'batch_size': 128,
     #             'framework':  "pytorch",
     #             'dataset': 'SVHN',
-    #             'model': 'resnet50'
+    #             'model': 'resnet101'
     #             }
-    # # plot single run for a combinaiton of levels
-    # plot_singleexperiment_timeseries(levels_values, model_data_pytorch, energy_data_pytorch, framework='pytorch',
-    #                                     x_var="time_sec",
-    #                                     vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"])
-    # levels_values.pop('run')
     # # plot avergaed runs averaged per epoch for combinaiton of levels
-    # plot_singleexperiment_timeseries(levels_values, model_data_pytorch, combineddata_perepoch_averaged, framework='pytorch',
+    # plot_singleexperiment_timeseries(levels_values, model_data_pytorch, combined_data_pytorch, framework='pytorch',
     #                                     vars_toplot = ["power",  "temp", "gpu_util",  "mem_util"],
     #                                     x_var="epoch_number"
     #                                     )
     
+    
     # 2 - Total energy consumption of training between the frameworks per Model and Batch size
+    # NOTE: after inspecting single experiments, I see that first epoch can be removed, but maybe i'm wrong
+    
+    # Generate plot for total energy
+    _logger.info("Generating total energy plots")
+    plot_3x3(data = data_totalenergy_normalepochs, filename=f'total_energy_last{10-n_epochs_exclude}_epochs.png',
+             suptitle=f'Average Power in last {10-n_epochs_exclude} epochs used in training by batch size and framework')
+    plot_3x3(data = data_totalenergy_firstepochs, filename=f'total_energy_first{n_epochs_exclude}_epochs.png',
+             suptitle=f'Average Power in last {10-n_epochs_exclude} epochs used in training by batch size and framework')
+    
+    _logger.info("Generating average power plots")
+    plot_3x3(data = data_avg_normalepochs, filename=f'average_power_last{10-n_epochs_exclude}_epochs.png',
+             y_var="power", suptitle=f'Average Power in last {10-n_epochs_exclude} epochs used in training by batch size and framework'
+             )
+    plot_3x3(data = data_avg_firstepochs, filename=f'average_power_first{n_epochs_exclude}_epochs.png',
+             y_var="power", suptitle=f'Average Power in first {n_epochs_exclude} epochs used in training by batch size and framework'
+             )
+ 
     # 3 - Maximum energy spike of the same variance
     # 4 - Growth of energy usage + gpu utilization for increase in batch size
     # 5 - Mean gpu utilization between frameworks
