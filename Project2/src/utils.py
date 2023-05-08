@@ -5,6 +5,7 @@ Script with functions to be used across files
 """
 
 import os
+import sys
 
 from torchvision import datasets, transforms
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
@@ -225,22 +226,16 @@ def read_energy_csv(csv_path):
 def read_model_csv(csv_path, framework, timestamp_0):
     '''
     Reads model data an processes it into clean format
-    '''
-    # if framework == 'pytorch':
-    #     # read with error in it
-    #     header  = ["epoch","precision","recall","accuracy", "f1", "error", "timestamp"] 
-    #     model_data = pd.read_csv(csv_path, skiprows=[0], sep=';|;;', names=header, engine='python')
-    #     model_data.drop("error", axis=1, inplace=True)
-    # else :
-    #     continue
-    #     # read normally
-    
+    '''    
     model_data = pd.read_csv(csv_path, sep=";")
     
     # Process data into nice format and datatype
     # time
     model_data['timestamp'] = pd.to_datetime(model_data['timestamp'])
     model_data['time_sec'] = (model_data['timestamp'] - timestamp_0).dt.total_seconds()
+    model_data['total_time'] = model_data['time_sec'] - model_data['time_sec'].shift(1)
+    model_data.at[0, 'total_time'] = model_data['time_sec'][0]
+    model_data['total_time'] = model_data['total_time'].round(3)
     # round evaluation metrics
     model_data['precision'] = model_data['precision'].round(3)
     model_data['recall'] = model_data['recall'].round(3)
@@ -274,7 +269,6 @@ def get_allexperiments_data(framework, device="gpu"):
         # Assign bins to time in energy data 
         bins = model_data_temp['time_sec'].unique().tolist()
         bins = [-1] + bins
-        bins[-1] = bins[-1]
         labels = [int(i) + 1 for i in model_data_temp['epoch'].unique().tolist()]
 
 
@@ -298,6 +292,8 @@ def get_allexperiments_data(framework, device="gpu"):
     model_data = pd.concat(model_data)
     energy_data = pd.concat(energy_data)
     
+    
+    
     # combine data per runs and per batches and average across runs
     columns_to_avg = [
         # energy cols
@@ -305,13 +301,15 @@ def get_allexperiments_data(framework, device="gpu"):
         # model cols
         "precision", "recall", "accuracy", "f1"
                       ]
+    
+    
     energy_data_combined = pd.merge(energy_data,
                                     model_data,
                                     left_on=['epoch_number', 'run', 'device', 'max_epoch', 'batch_size', 'framework','dataset', 'model'],
                                     right_on = ['epoch', 'run', 'device', 'max_epoch', 'batch_size', 'framework','dataset', 'model'],
                                     how='left')
-    energydata_averagedperepoch = energy_data_combined.groupby(['epoch_number', 'run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').reset_index()
-    energydata_averagedperepoch_averagedthroughruns = energydata_averagedperepoch.groupby(['epoch_number', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').round(3).reset_index()
+    energydata_averagedperepoch = energy_data_combined.groupby(['epoch_number','total_time', 'run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').reset_index()
+    energydata_averagedperepoch_averagedthroughruns = energydata_averagedperepoch.groupby(['epoch_number','total_time', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').round(3).reset_index()
 
 
     # Save data
@@ -321,3 +319,29 @@ def get_allexperiments_data(framework, device="gpu"):
     energydata_averagedperepoch_averagedthroughruns.to_csv(os.path.join(save_dir, f"cleandata_perepoch_{framework}.csv"), index=False)
 
     return df_overview, model_data, energy_data, energydata_averagedperepoch_averagedthroughruns
+
+###########################################
+# ----------- Data Transforms -------------
+###########################################
+
+
+def get_averaged_data(all_data, vars_to_avg, n_epochs_exclude = 1):
+    '''
+    Calculates the average for data columnss across epochs afer 
+    excluding the first "n_epochs_exclude" ones.
+    Input data is all processed data as in "all_data_processed.csv"
+    '''
+    # 'epoch_number', 'device', 'max_epoch', 'batch_size', 'framework',
+    #    'dataset', 'model', 'power', 'temp', 'mem_used', 'gpu_util', 'mem_util',
+    #    'precision', 'recall', 'accuracy', 'f1'
+    id_cols = ['run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model']
+    columns_to_avg = [
+        # energy cols
+        'power', 'temp', 'mem_used', 'gpu_util', 'mem_util',
+        # model cols
+        "precision", "recall", "accuracy", "f1"
+                      ]
+    data_total = all_data.groupby(id_cols)[columns_to_avg].agg('mean').reset_index()
+    
+    
+    return data_total
