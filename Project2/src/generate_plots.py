@@ -175,35 +175,33 @@ def main(args):
     # LOAD DATA ------------------------------------------------------------
     # Pytorch 
     
-    # df_overview_pytorch, model_data_pytorch, energy_data_pytorch, combined_data_pytorch = utils.get_allexperiments_data("pytorch", device=args.device)
-    # print("PYTORCH\n",
-    #       f"Number of experiments: {df_overview_pytorch.shape}\n", 
-    #       f"Size of model data: {model_data_pytorch.shape}\n", 
-    #       f"Size of energy data: {energy_data_pytorch.shape}\n",
-    #       f"Size of combined data per epoch (averaged through runs): {combined_data_pytorch.shape}",
-    #       )
-    # # Tensorflow ------------------------------------------------------------
-    # df_overview_tensorflow, model_data_tensorflow, energy_data_tensorflow, combined_data_tensorflow = utils.get_allexperiments_data( "tensorflow", device=args.device)
-    # print("TENSORFLOW\n",
-    #       f"Number of experiments: {df_overview_tensorflow.shape}\n", 
-    #       f"Size of model data: {model_data_tensorflow.shape}\n", 
-    #       f"Size of energy data: {energy_data_tensorflow.shape}\n",
-    #       f"Size of combined data per epoch (averaged through runs): {combined_data_tensorflow.shape}",
+    df_overview_pytorch, model_data_pytorch, energy_data_pytorch, combined_data_pytorch = utils.get_allexperiments_data("pytorch", device=args.device)
+    print("PYTORCH\n",
+          f"Number of experiments: {df_overview_pytorch.shape}\n", 
+          f"Size of model data: {model_data_pytorch.shape}\n", 
+          f"Size of energy data: {energy_data_pytorch.shape}\n",
+          f"Size of combined data per epoch (averaged through runs): {combined_data_pytorch.shape}",
+          )
+    # Tensorflow ------------------------------------------------------------
+    df_overview_tensorflow, model_data_tensorflow, energy_data_tensorflow, combined_data_tensorflow = utils.get_allexperiments_data( "tensorflow", device=args.device)
+    print("TENSORFLOW\n",
+          f"Number of experiments: {df_overview_tensorflow.shape}\n", 
+          f"Size of model data: {model_data_tensorflow.shape}\n", 
+          f"Size of energy data: {energy_data_tensorflow.shape}\n",
+          f"Size of combined data per epoch (averaged through runs): {combined_data_tensorflow.shape}",
 
-    #       )
+          )
     
-    # # All data merged together and saved 
-    # combined_data_pytorch['framework'] = 'pytorch'
-    # combined_data_tensorflow['framework'] = 'tensorflow'
+    # All data merged together and saved 
+    combined_data_pytorch['framework'] = 'pytorch'
+    combined_data_tensorflow['framework'] = 'tensorflow'
     
-    # all_data = pd.concat([combined_data_pytorch, combined_data_tensorflow], ignore_index=True)
-    # all_data.to_csv(os.path.join(PROJECT2_PATH, "dataout", "all_data_processed.csv"), index=False)  
+    all_data = pd.concat([combined_data_pytorch, combined_data_tensorflow], ignore_index=True)
+    all_data.to_csv(os.path.join(PROJECT2_PATH, "dataout", "all_data_processed.csv"), index=False)  
     
     
     
     # PROCESS DATA -------------------------------------------------------------
-
-    all_data = pd.read_csv("/home/jorge/Insync/jorgitoje@gmail.com/OneDrive/Documentos/JORGE/EDUCATION/MASTER_DATASCIENCE/Semester2/ComputerSystemsPerformance/GroupProjects/ComputerSystemsPerformance/Project2/dataout/all_data_processed.csv")
     
     # remove unnecessary cols
     all_data.drop(["max_epoch", "device"], axis=1, inplace=True)
