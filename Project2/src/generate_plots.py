@@ -165,7 +165,7 @@ def main(args):
     combined_data_tensorflow['framework'] = 'tensorflow'
     
     merged_df = pd.concat([combined_data_pytorch, combined_data_tensorflow], ignore_index=True)
-    merged_df.to_csv(os.path.join(PROJECT2_PATH, "dataout", "all_data_processed.csv"))
+    merged_df.to_csv(os.path.join(PROJECT2_PATH, "dataout", "all_data_processed.csv"), index=False)
 
 
     # # 1 - Single experiment
