@@ -248,14 +248,13 @@ def get_allexperiments_data(framework, device="gpu"):
     Generates necessary data for framework experiments
     '''
     exp_dir = os.path.join(PROJECT2_PATH,  "experiments", device)
+    
     # Generate overview of data for framwork and save
     df_overview = get_experiments_overview(exp_dir, framework)
     save_dir = ensure_dir(os.path.join(PROJECT2_PATH,"dataout", framework ))
 
     
-    
     # Extract tabular data for energy and model separately
-
     energy_data = []
     model_data = []
     
@@ -297,7 +296,7 @@ def get_allexperiments_data(framework, device="gpu"):
     # combine data per runs and per batches and average across runs
     columns_to_avg = [
         # energy cols
-        'power', 'temp', 'mem_used', 'gpu_util', 'mem_util',
+        'power', 'temp', 'mem_used', 'gpu_util', 'mem_util','total_time',
         # model cols
         "precision", "recall", "accuracy", "f1"
                       ]
@@ -308,8 +307,8 @@ def get_allexperiments_data(framework, device="gpu"):
                                     left_on=['epoch_number', 'run', 'device', 'max_epoch', 'batch_size', 'framework','dataset', 'model'],
                                     right_on = ['epoch', 'run', 'device', 'max_epoch', 'batch_size', 'framework','dataset', 'model'],
                                     how='left')
-    energydata_averagedperepoch = energy_data_combined.groupby(['epoch_number','total_time', 'run', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').reset_index()
-    energydata_averagedperepoch_averagedthroughruns = energydata_averagedperepoch.groupby(['epoch_number','total_time', 'device', 'max_epoch', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').round(3).reset_index()
+    energydata_averagedperepoch = energy_data_combined.groupby(['epoch_number', 'batch_size', 'framework', 'dataset', 'model', 'run'])[columns_to_avg].agg('mean').reset_index()
+    energydata_averagedperepoch_averagedthroughruns = energydata_averagedperepoch.groupby(['epoch_number', 'batch_size', 'framework', 'dataset', 'model'])[columns_to_avg].agg('mean').round(3).reset_index()
     dataout  = energydata_averagedperepoch_averagedthroughruns
     
     # calculate energy per epoch
@@ -320,9 +319,9 @@ def get_allexperiments_data(framework, device="gpu"):
     _logger.info(f"Saving overview for {framework}")
     df_overview.drop(['energy_filepath', 'model_filepath'], axis=1).to_csv(os.path.join(save_dir, f"data_overview_{framework}.csv"), 
                        index=False)
-    energydata_averagedperepoch_averagedthroughruns.to_csv(os.path.join(save_dir, f"cleandata_perepoch_{framework}.csv"), index=False)
+    dataout.to_csv(os.path.join(save_dir, f"cleandata_perepoch_{framework}.csv"), index=False)
 
-    return df_overview, model_data, energy_data, energydata_averagedperepoch_averagedthroughruns
+    return df_overview, model_data, energy_data, dataout
 
 ###########################################
 # ----------- Data Transforms -------------
@@ -342,7 +341,7 @@ def get_total_energy_data(all_data,  n_epochs_exclude = 1):
 
     return data_totalenergy
 
-def get_avg_data(all_data,  n_epochs_exclude = 1):
+def get_avg_data(all_data):
     '''
     Average across epochs all variables 
     '''
