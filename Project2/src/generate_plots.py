@@ -248,7 +248,7 @@ def main(args):
     plot_3x3(data = data_totalenergy_normalepochs, filename=f'total_energy_last{10-n_epochs_exclude}_epochs.png',
              suptitle=f'Average Power in last {10-n_epochs_exclude} epochs used in training by batch size and framework')
     plot_3x3(data = data_totalenergy_firstepochs, filename=f'total_energy_first{n_epochs_exclude}_epochs.png',
-             suptitle=f'Average Power in last {10-n_epochs_exclude} epochs used in training by batch size and framework')
+             suptitle=f'Average Power in first {n_epochs_exclude} epochs used in training by batch size and framework')
     
     _logger.info("Generating average power plots")
     plot_3x3(data = data_avg_normalepochs, filename=f'average_power_last{10-n_epochs_exclude}_epochs.png',
