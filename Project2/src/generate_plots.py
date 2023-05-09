@@ -23,6 +23,8 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import warnings
+warnings.filterwarnings("ignore")
 
 sns.set_context('paper')
 
@@ -145,13 +147,30 @@ def plot_3x3(data, filename,  suptitle="",  y_var = 'energy', x_var = 'batch_siz
                 ): 
     '''
     Plots a 3x3 suplots, with barplots split by "var_split", and "x_var" and "y_var".
-    
+
     Input data from either get_total_energy_data or get_avg_data utputs
     '''
+    
+    labels_dict = {
+        "power": "Power consumption (W)",
+        "temp": "Temperature (ºC)",
+        "mem_used": "Memory used (Mib)",
+        "gpu_util": "GPU utilization (in %)",
+        "mem_util": "Memory utilization (in %)",
+        "energy": "Total energy used (J)",
+        "batch_size": "Batch size"
+  
+    }
+    
     fig, axes = plt.subplots(3, 3, figsize=(30, 15))
     
-    column_values = data[columns_var].unique()
-    row_values = data[rows_var].unique()
+    # get possible column and row values and order them
+    if columns_var == 'model':
+        column_values = sorted(data[columns_var].unique(), key=lambda x: int(x.split('net')[-1]))
+    else:
+        column_values = data[columns_var].unique()
+        
+    row_values = sorted(data[rows_var].unique())
     
     for i, dataset in enumerate(row_values):
         
@@ -160,14 +179,18 @@ def plot_3x3(data, filename,  suptitle="",  y_var = 'energy', x_var = 'batch_siz
         for j, col_value in enumerate(column_values):
             
             data_column  = data_row[data_row["model"] == col_value]
+            
+            if x_var == 'batch_size':
+                data_column[x_var] = data_column[x_var].astype(int)
+                data_column = data_column.sort_values(by=x_var, ascending=True)
 
             axes[i,j] = sns.barplot(x = x_var, y=y_var, hue = split_var, data = data_column, ax=axes[i,j])
-            # axes[i,j].set_xlabel('Batch size')
-            # axes[i,j].set_ylabel(ylabel)
+            axes[i,j].set_xlabel(labels_dict[x_var])
+            axes[i,j].set_ylabel(labels_dict[y_var])
             axes[i,j].set_title(col_value)
             
         fig.suptitle(suptitle)
-        fig.savefig(os.path.join(PROJECT2_PATH, 'plots', filename),  bbox_inches='tight' )
+        fig.savefig(os.path.join(PROJECT2_PATH, 'plots', filename))
 
 
 def main(args):
