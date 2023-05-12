@@ -168,7 +168,7 @@ def plot_singleexperiment_both_timeseries( levels_values, model_data, energy_dat
     return fig, ax
 
 def plot_3x3(data, filename,  suptitle="",  y_var = 'energy', x_var = 'batch_size', split_var ='framework', columns_var = 'model', rows_var = 'dataset',
-             type_plot = 'barplot'
+             type_plot = 'barplot', hatch = None
                 ): 
     '''
     Plots a 3x3 suplots, with barplots split by "var_split", and "x_var" and "y_var".
@@ -223,7 +223,7 @@ def plot_3x3(data, filename,  suptitle="",  y_var = 'energy', x_var = 'batch_siz
                 data_column = data_column.sort_values(by=x_var, ascending=True)
 
             if type_plot == 'barplot':
-                axes[i,col_i] = sns.barplot(x = x_var, y=y_var, hue = split_var, data = data_column, ax=axes[i,col_i])
+                axes[i,col_i] = sns.barplot(x = x_var, y=y_var, hue = split_var, data = data_column, ax=axes[i,col_i], hatch=hatch)
             elif type_plot == 'line_plot':
                 axes[i, col_i] = sns.lineplot(x=x_var, y=y_var, hue=split_var, data=data_column, ax=axes[i, col_i])
 
@@ -281,7 +281,6 @@ def main(args):
     
     all_data = pd.read_csv(os.path.join(PROJECT2_PATH, "dataout", "all_data_processed.csv" ))
 
-    
     # PROCESS DATA -------------------------------------------------------------
     
     
@@ -352,7 +351,13 @@ def main(args):
              y_var = 'power', x_var = 'epoch_number', split_var ='framework', columns_var = 'model', rows_var = 'batch_size',
              type_plot = 'line_plot'
              )
-
+    # 4- Mean energy graph for 1st epoch and other epochs
+    _logger.info("Generating average power through epochs plots")
+    # all epochs
+    plot_3x3(data = data_avg_all, filename=f'averagepower_per_batchsize.png',
+             y_var = 'power', x_var = 'batch_size', split_var ='framework', columns_var = 'model', rows_var = 'dataset',
+             type_plot = 'barplot', hatch='/'
+             )
 
 
     # 4 - Maximum energy spike of the same variance
