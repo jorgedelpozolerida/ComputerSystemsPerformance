@@ -168,7 +168,7 @@ def plot_singleexperiment_both_timeseries( levels_values, model_data, energy_dat
     return fig, ax
 
 def plot_3x3(data, filename,  suptitle="",  y_var = 'energy', x_var = 'batch_size', split_var ='framework', columns_var = 'model', rows_var = 'dataset',
-             type_plot = 'barplot', hatch = None
+             type_plot = 'barplot', hatch = None, ylim=None
                 ): 
     '''
     Plots a 3x3 suplots, with barplots split by "var_split", and "x_var" and "y_var".
@@ -240,6 +240,8 @@ def plot_3x3(data, filename,  suptitle="",  y_var = 'energy', x_var = 'batch_siz
             if col_i == 1:
                 axes[i, col_i].set_ylabel(labels_dict[y_var], fontsize=20)
                 axes[i, col_i].tick_params(axis='y', which='both', labelleft=True)
+                if ylim is not None:
+                    axes[i, col_i].set_ylim(ylim[0], ylim[1])
             else:
                 axes[i, col_i].set_ylabel("")
                 axes[i, col_i].tick_params(axis='y', which='both', labelleft=False)
@@ -359,6 +361,13 @@ def main(args):
              type_plot = 'barplot', hatch='/'
              )
 
+    # 5 - Make mean GPU utilization graph
+    _logger.info("Generating average GPU utilization through epochs plots")
+    # all epochs
+    plot_3x3(data = data_avg_all, filename=f'averageGPUutilization_per_batchsize.png',
+             y_var = 'gpu_util', x_var = 'batch_size', split_var ='framework', columns_var = 'model', rows_var = 'dataset',
+             type_plot = 'barplot', hatch='x', ylim=[0, 100]
+             )
 
     # 4 - Maximum energy spike of the same variance
     # 5 - Growth of energy usage + gpu utilization for increase in batch size
