@@ -373,7 +373,7 @@ def main(args):
     _logger.info("Generating final accuracy plot")
     # last epoch
     all_data_lastepoch = all_data[all_data['epoch_number'] == 10]
-    plot_3x3(data = all_data_lastepoch, filename=f'average_accuracy_per_batchsize.png',
+    plot_3x3(data = all_data_lastepoch, filename=f'final_accuracy_per_batchsize.png',
              y_var = 'accuracy', x_var = 'batch_size', split_var ='framework', columns_var = 'model', rows_var = 'dataset',
              type_plot = 'barplot', hatch='.', ylim=[0, 1]
              )
