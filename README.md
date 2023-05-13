@@ -28,7 +28,7 @@ Concurrent Output initially performed worse for low hash bits but improved as ha
 
 Independent Output outperformed Concurrent Output for low hash bits and few threads, but Concurrent Output scaled better for hash bits between 8 and 12. Both methods had decreased performance as the number of partitions increased due to dTLB load misses and the translation process.
 
-# Mini Project 1 :rocket:
+# Mini Project 2 :rocket:
 
 ## Project Description
 This project focuses on investigating the energy efficiency of PyTorch and TensorFlow frameworks using the ResNet architecture. It aims to optimize energy consumption in AI applications and contribute to building sustainable AI systems.
